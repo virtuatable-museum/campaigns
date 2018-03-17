@@ -15,6 +15,16 @@ module Controllers
       end
     end
 
+    declare_route 'delete', '/:id' do
+      campaign = Arkaan::Campaign.where(id: params['id']).first
+      if campaign.nil?
+        halt 404, {message: 'campaign_not_found'}.to_json
+      else
+        campaign.delete
+        halt 200, {message: 'deleted'}.to_json
+      end
+    end
+
     def campaign_parameters
       params.select do |key, value|
         ['title', 'description', 'is_private', 'creator_id'].include?(key)
