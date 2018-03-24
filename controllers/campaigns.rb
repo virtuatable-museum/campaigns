@@ -7,7 +7,7 @@ module Controllers
 
     declare_route 'post', '/' do
       check_presence 'title', 'creator_id'
-      campaign = Arkaan::Campaign.new(campaign_parameters)
+      campaign = Services::Campaigns.instance.build(campaign_parameters, params['tags'] || [])
       if campaign.save
         halt 201, {message: 'created'}.to_json
       else
