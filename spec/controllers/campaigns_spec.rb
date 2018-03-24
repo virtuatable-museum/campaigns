@@ -34,7 +34,8 @@ RSpec.describe Controllers::Campaigns do
                 'id' => account.id.to_s,
                 'username' => 'Babausse'
               },
-              'is_private' => true
+              'is_private' => true,
+              'tags' => ['test_tag']
             }
           ]
         })

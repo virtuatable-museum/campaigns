@@ -5,6 +5,7 @@ FactoryGirl.define do
       title 'test_title'
       description 'A longer description of the campaign'
       is_private true
+      tags ['test_tag']
     end
   end
 end

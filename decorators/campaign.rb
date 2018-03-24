@@ -26,7 +26,8 @@ module Decorators
         creator: {
           id: object.creator.id.to_s,
           username: object.creator.username
-        }
+        },
+        tags: object.tags
       }
     end
   end
