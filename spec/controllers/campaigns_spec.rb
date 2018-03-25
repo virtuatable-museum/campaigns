@@ -45,6 +45,48 @@ RSpec.describe Controllers::Campaigns do
     it_should_behave_like 'a route', 'get', '/'
   end
 
+  describe 'GET /:id' do
+    let!(:campaign) { create(:campaign, creator: account) }
+
+    describe 'Nominal case' do
+      before do
+        get '/campaign_id', {token: 'test_token', app_key: 'test_key'}
+      end
+      it 'returns a OK (200) response code when successfully getting a camapign' do
+        expect(last_response.status).to be 200
+      end
+      it 'returns the correct body when getting a campaign' do
+        expect(JSON.parse(last_response.body)).to eq({
+          'id' => campaign.id.to_s,
+          'title' => 'test_title',
+          'description' => 'A longer description of the campaign',
+          'creator' => {
+            'id' => account.id.to_s,
+            'username' => 'Babausse'
+          },
+          'is_private' => true,
+          'tags' => ['test_tag']
+        })
+      end
+    end
+
+    it_should_behave_like 'a route', 'put', '/campaign_id'
+
+    describe 'Not Found Errors' do
+      describe 'Campaign not found error' do
+        before do
+          put '/fake_campaign_id', {token: 'test_token', app_key: 'test_key'}
+        end
+        it 'correctly returns a Not Found (404) error when the campaign you want to get does not exist' do
+          expect(last_response.status).to be 404
+        end
+        it 'returns the correct body when the campaign does not exist' do
+          expect(JSON.parse(last_response.body)).to eq({'message' => 'campaign_not_found'})
+        end
+      end
+    end
+  end
+
   describe 'POST /' do
     describe 'Nominal case' do
       before do
