@@ -17,6 +17,19 @@ module Decorators
       object.update_attribute(:tags, tags)
     end
 
+    # Deletes all the tags for the campaign, and updates the associated tags counters.
+    def delete_tags
+      object.tags.each do |tag|
+        tag_object = Arkaan::Campaigns::Tag.where(content: tag).first
+        if tag_object.count > 1
+          tag_object.count = tag_object.tag - 1
+          tag_object.save
+        else
+          tag_object.delete
+        end
+      end
+    end
+
     def to_h
       return {
         id: _id.to_s,

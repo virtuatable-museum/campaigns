@@ -7,11 +7,24 @@ module Controllers
 
     declare_route 'post', '/' do
       check_presence 'title', 'creator_id'
-      campaign = Services::Campaigns.instance.build(campaign_parameters, params['tags'] || [])
+      campaign = Services::Campaigns.instance.build(campaign_params, tags || [])
       if campaign.save
         halt 201, {message: 'created'}.to_json
       else
         halt 422, {errors: campaign.errors.messages.values.flatten}.to_json
+      end
+    end
+
+    declare_route 'put', '/:id' do
+      campaign = Arkaan::Campaign.where(id: params['id']).first
+      if campaign.nil?
+        halt 404, {message: 'campaign_not_found'}.to_json
+      else
+        if Services::Campaigns.instance.update(campaign, campaign_params, tags)
+          halt 200, {message: 'updated'}.to_json
+        else
+          halt 422, {errors: campaign.errors.messages.values.flatten}.to_json
+        end
       end
     end
 
@@ -25,10 +38,14 @@ module Controllers
       end
     end
 
-    def campaign_parameters
+    def campaign_params
       params.select do |key, value|
         ['title', 'description', 'is_private', 'creator_id'].include?(key)
       end
+    end
+
+    def tags
+      return params['tags'].nil? ? nil : params['tags'].select { |tag| tag != '' }
     end
   end
 end

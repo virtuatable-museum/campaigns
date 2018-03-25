@@ -14,5 +14,17 @@ module Services
       campaign.assign_tags(tags.uniq)
       return campaign
     end
+
+    def update(campaign, parameters, tags)
+      campaign = Decorators::Campaign.new(campaign)
+      parameters.each do |key, value|
+        campaign[key] = value
+      end
+      if !tags.nil?
+        campaign.delete_tags
+        campaign.assign_tags(tags.uniq)
+      end
+      return campaign.save
+    end
   end
 end
