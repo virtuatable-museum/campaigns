@@ -17,7 +17,8 @@ module Controllers
     declare_route 'post', '/' do
       check_presence 'title', 'creator_id'
       campaign = Services::Campaigns.instance.build(campaign_params, tags || [])
-      if campaign.save
+      if campaign.valid?
+        campaign.save
         halt 201, {message: 'created'}.to_json
       else
         halt 422, {errors: campaign.errors.messages.values.flatten}.to_json

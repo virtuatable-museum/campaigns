@@ -197,6 +197,9 @@ RSpec.describe Controllers::Campaigns do
         it 'returns the correct body when not giving the campaign title' do
           expect(JSON.parse(last_response.body)).to eq({'message' => 'missing.title'})
         end
+        it 'has not created a new campaign' do
+          expect(Arkaan::Campaign.count).to be 0
+        end
       end
     end
 
@@ -211,6 +214,9 @@ RSpec.describe Controllers::Campaigns do
         it 'returns the correct body when the campaign title is too short' do
           expect(JSON.parse(last_response.body)).to eq({'errors' => ['campaign.title.short']})
         end
+        it 'has not created a new campaign' do
+          expect(Arkaan::Campaign.count).to be 0
+        end
       end
 
       describe 'campaign title already taken' do
@@ -223,6 +229,9 @@ RSpec.describe Controllers::Campaigns do
         end
         it 'returns the correct body when the campaign title is already used by this user' do
           expect(JSON.parse(last_response.body)).to eq({'errors' => ['campaign.title.uniq']})
+        end
+        it 'has not created a new campaign' do
+          expect(Arkaan::Campaign.count).to be 1
         end
       end
     end

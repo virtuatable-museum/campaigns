@@ -14,7 +14,7 @@ module Decorators
           tag_object.save
         end
       end
-      object.update_attribute(:tags, tags)
+      object.tags = tags
     end
 
     # Deletes all the tags for the campaign, and updates the associated tags counters.
