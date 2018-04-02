@@ -30,6 +30,21 @@ module Decorators
       end
     end
 
+    def invitations
+      accepted = object.invitations.where(accepted: true)
+      pending = object.invitations.where(accepted: false)
+      return {
+        accepted: {
+          count: accepted.count,
+          items: Decorators::Invitation.decorate_collection(accepted).map(&:to_h)
+        },
+        pending: {
+          count: pending.count,
+          items: Decorators::Invitation.decorate_collection(pending).map(&:to_h)
+        }
+      }
+    end
+
     def to_h
       return {
         id: _id.to_s,

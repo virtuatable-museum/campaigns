@@ -14,6 +14,15 @@ module Controllers
       end
     end
 
+    declare_route 'get', '/:id/invitations' do
+      campaign = Arkaan::Campaign.where(id: params['id']).first
+      if campaign.nil?
+        halt 404, {message: 'campaign_not_found'}.to_json
+      else
+        halt 200, Decorators::Campaign.new(campaign).invitations.to_json
+      end
+    end
+
     declare_route 'post', '/' do
       check_presence 'title', 'creator_id'
       campaign = Services::Campaigns.instance.build(campaign_params, tags || [])
