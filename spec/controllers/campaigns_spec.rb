@@ -119,7 +119,6 @@ RSpec.describe Controllers::Campaigns do
                 'id' => accepted_invitation.id.to_s,
                 'creator' =>
                 'Other username',
-                'accepted_at' => acceptation_date.iso8601,
                 'username' => 'Babausse'
               }
             ]
