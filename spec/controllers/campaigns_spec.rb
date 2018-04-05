@@ -114,11 +114,25 @@ RSpec.describe Controllers::Campaigns do
         expect(JSON.parse(last_response.body)).to eq({
           'accepted' => {
             'count' => 1,
-            'items' => [{'creator' => 'Other username', 'accepted_at' => acceptation_date.iso8601, 'username' => 'Babausse'}]
+            'items' => [
+              {
+                'id' => accepted_invitation.id.to_s,
+                'creator' =>
+                'Other username',
+                'accepted_at' => acceptation_date.iso8601,
+                'username' => 'Babausse'
+              }
+            ]
           },
           'pending' => {
             'count' => 1,
-            'items' => [{'creator' => 'Other username', 'username' => 'Third username'}]
+            'items' => [
+              {
+                'id' => pending_invitation.id.to_s,
+                'creator' => 'Other username',
+                'username' => 'Third username'
+              }
+            ]
           }
         })
       end
@@ -139,7 +153,6 @@ RSpec.describe Controllers::Campaigns do
         end
       end
     end
-
   end
 
   describe 'POST /' do
