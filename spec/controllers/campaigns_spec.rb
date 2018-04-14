@@ -70,18 +70,23 @@ RSpec.describe Controllers::Campaigns do
       end
     end
 
-    it_should_behave_like 'a route', 'put', '/campaign_id'
+    it_should_behave_like 'a route', 'get', '/campaign_id'
 
     describe 'Not Found Errors' do
       describe 'Campaign not found error' do
         before do
-          put '/fake_campaign_id', {token: 'test_token', app_key: 'test_key'}
+          get '/fake_campaign_id', {token: 'test_token', app_key: 'test_key'}
         end
         it 'correctly returns a Not Found (404) error when the campaign you want to get does not exist' do
           expect(last_response.status).to be 404
         end
         it 'returns the correct body when the campaign does not exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'campaign_not_found'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 404,
+            'field' => 'campaign_id',
+            'error' => 'unknown',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found'
+          })
         end
       end
     end
@@ -148,7 +153,12 @@ RSpec.describe Controllers::Campaigns do
           expect(last_response.status).to be 404
         end
         it 'returns the correct body when the campaign does not exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'campaign_not_found'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 404,
+            'field' => 'campaign_id',
+            'error' => 'unknown',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-1'
+          })
         end
       end
     end
@@ -262,24 +272,32 @@ RSpec.describe Controllers::Campaigns do
           expect(last_response.status).to be 400
         end
         it 'returns the correct body when not giving the campaign title' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'missing.title'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 400,
+            'field' => 'title',
+            'error' => 'required',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found'
+          })
         end
         it 'has not created a new campaign' do
           expect(Arkaan::Campaign.count).to be 0
         end
       end
-    end
 
-    describe 'Unprocessable entity errors' do
       describe 'Campaign title too short' do
         before do
           post '/', {token: 'test_token', app_key: 'test_key', title: 'a', is_private: true, creator_id: account.id.to_s}
         end
-        it 'returns an Unprocessable Entity (422) error when the title is too short' do
-          expect(last_response.status).to be 422
+        it 'returns an Bad Request (400) error when the title is too short' do
+          expect(last_response.status).to be 400
         end
         it 'returns the correct body when the campaign title is too short' do
-          expect(JSON.parse(last_response.body)).to eq({'errors' => ['campaign.title.short']})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 400,
+            'field' => 'title',
+            'error' =>'minlength',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#title-too-short'
+          })
         end
         it 'has not created a new campaign' do
           expect(Arkaan::Campaign.count).to be 0
@@ -291,11 +309,16 @@ RSpec.describe Controllers::Campaigns do
           create(:campaign, title: 'test_title', creator: account)
           post '/', {token: 'test_token', app_key: 'test_key', title: 'test_title', creator_id: account.id.to_s}
         end
-        it 'returns an Unprocessable Entity (422) error when the title is already used' do
-          expect(last_response.status).to be 422
+        it 'returns an Bad Request (400) error when the title is already used' do
+          expect(last_response.status).to be 400
         end
         it 'returns the correct body when the campaign title is already used by this user' do
-          expect(JSON.parse(last_response.body)).to eq({'errors' => ['campaign.title.uniq']})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 400,
+            'field' => 'title',
+            'error' => 'uniq',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#title-not-uniq-for-this-user'
+            })
         end
         it 'has not created a new campaign' do
           expect(Arkaan::Campaign.count).to be 1
@@ -433,7 +456,12 @@ RSpec.describe Controllers::Campaigns do
           expect(last_response.status).to be 404
         end
         it 'returns the correct body when the campaign does not exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'campaign_not_found'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 404,
+            'field' => 'campaign_id',
+            'error' => 'unknown',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-2'
+          })
         end
       end
     end
@@ -446,11 +474,16 @@ RSpec.describe Controllers::Campaigns do
         before do
           put '/campaign_id', {token: 'test_token', app_key: 'test_key', title: 'another title'}
         end
-        it 'returns an Unprocessable Entity (422) response code when updating with an already used title' do
-          expect(last_response.status).to be 422
+        it 'returns an Unprocessable Entity (400) response code when updating with an already used title' do
+          expect(last_response.status).to be 400
         end
         it 'returns the correct body when updating with an already used title' do
-          expect(JSON.parse(last_response.body)).to eq({'errors' => ['campaign.title.uniq']})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 400,
+            'field' => 'title',
+            'error' => 'uniq',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#title-not-uniq-for-this-user-1'
+          })
         end
       end
     end
@@ -485,7 +518,12 @@ RSpec.describe Controllers::Campaigns do
           expect(last_response.status).to be 404
         end
         it 'returns the correct body when the campaign does not exist' do
-          expect(JSON.parse(last_response.body)).to eq({'message' => 'campaign_not_found'})
+          expect(JSON.parse(last_response.body)).to eq({
+            'status' => 404,
+            'field' => 'campaign_id',
+            'error' => 'unknown',
+            'docs' => 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-3'
+          })
         end
       end
     end
