@@ -4,8 +4,17 @@ module Controllers
     load_errors_from __FILE__
 
     declare_route 'get', '/' do
-      campaigns = Decorators::Campaign.decorate_collection(Arkaan::Campaign.all.to_a)
-      halt 200, {count: Arkaan::Campaign.count, items: campaigns.map(&:to_h)}.to_json
+      session = check_session('list')
+      campaigns = Arkaan::Campaign.where(is_private: false).not.where(creator: session.account)
+      decorated = Decorators::Campaign.decorate_collection(campaigns)
+      halt 200, {count: campaigns.count, items: decorated.map(&:to_h)}.to_json
+    end
+
+    declare_route 'get', '/own' do
+      session = check_session('own_list')
+      campaigns = Arkaan::Campaign.where(creator: session.account)
+      decorated = Decorators::Campaign.decorate_collection(campaigns)
+      halt 200, {count: campaigns.count, items: decorated.map(&:to_h)}.to_json
     end
 
     declare_route 'get', '/:id' do
@@ -53,6 +62,13 @@ module Controllers
       params.select do |key, value|
         ['title', 'description', 'is_private', 'creator_id'].include?(key)
       end
+    end
+
+    def check_session(route)
+      check_presence('session_id', route: route)
+      session = Arkaan::Authentication::Session.where(token: params['session_id']).first
+      custom_error(404, "#{route}.session_id.unknown") if session.nil?
+      return session
     end
 
     def tags

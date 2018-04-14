@@ -21,6 +21,14 @@ errors:
   invitations:
     campaign_id:
       unknown: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-1'
+  list:
+    session_id:
+      required: ''
+      unknown: ''
+  own_list:
+    session_id:
+      required: ''
+      unknown: ''
   update:
     campaign_id:
       unknown: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-2'
