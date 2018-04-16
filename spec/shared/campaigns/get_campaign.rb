@@ -48,7 +48,25 @@ RSpec.shared_examples 'GET /:id' do
 
     it_should_behave_like 'a route', 'get', '/campaign_id'
 
-    describe 'Forbidden error' do
+    describe '400 errors' do
+      describe 'session ID not given' do
+        before do
+          get '/campaign_id', {token: 'test_token', app_key: 'test_key'}
+        end
+        it 'Returns a Bad Request (400) status' do
+          expect(last_response.status).to be 400
+        end
+        it 'Returns the correct body' do
+          expect(JSON.parse(last_response.body)).to include_json({
+            'status' => 400,
+            'field' => 'session_id',
+            'error' => 'required'
+          })
+        end
+      end
+    end
+
+    describe '403 error' do
       describe 'Session ID not allowed' do
         let!(:another_account) { create(:another_account) }
         let!(:session) { create(:session, account: another_account) }
@@ -69,20 +87,38 @@ RSpec.shared_examples 'GET /:id' do
       end
     end
 
-    describe 'Not Found Errors' do
-      describe 'Campaign not found error' do
+    describe '404 Errors' do
+      describe 'Campaign not found' do
         let!(:session) { create(:session, account: account) }
         
         before do
           get '/fake_campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
-        it 'correctly returns a Not Found (404) error when the campaign you want to get does not exist' do
+        it 'Returns a Not Found (404) status' do
           expect(last_response.status).to be 404
         end
-        it 'returns the correct body when the campaign does not exist' do
+        it 'Returns the correct body' do
           expect(JSON.parse(last_response.body)).to include_json({
             'status' => 404,
             'field' => 'campaign_id',
+            'error' => 'unknown'
+          })
+        end
+      end
+
+      describe 'Session not found' do
+        let!(:session) { create(:session, account: account) }
+        
+        before do
+          get '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: 'fake_token'}
+        end
+        it 'Returns a Not Found (404) status' do
+          expect(last_response.status).to be 404
+        end
+        it 'Returns the correct body' do
+          expect(JSON.parse(last_response.body)).to include_json({
+            'status' => 404,
+            'field' => 'session_id',
             'error' => 'unknown'
           })
         end

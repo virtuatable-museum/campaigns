@@ -1,12 +1,14 @@
 RSpec.shared_examples 'PUT /:id' do
   describe 'PUT /:id' do
+    let!(:campaign) { create(:campaign, creator: account) }
+    let!(:counter) { Arkaan::Campaigns::Tag.create(content: 'test_tag', count: 1) }
+    let!(:session) { create(:session, account: account) }
+
     describe 'Successful updates' do
-      let!(:campaign) { create(:campaign, creator: account) }
-      let!(:counter) { Arkaan::Campaigns::Tag.create(content: 'test_tag', count: 1) }
 
       describe 'nothing being updated' do
         before do
-          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key'}
+          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'returns a OK (200) response code when updating nothing' do
           expect(last_response.status).to be 200
@@ -33,7 +35,7 @@ RSpec.shared_examples 'PUT /:id' do
       end
       describe 'update of the title' do
         before do
-          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', title: 'another random title'}
+          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', title: 'another random title', session_id: session.token}
         end
         it 'returns a OK (200) response code when updating the title' do
           expect(last_response.status).to be 200
@@ -47,7 +49,7 @@ RSpec.shared_examples 'PUT /:id' do
       end
       describe 'update of the description' do
         before do
-          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', description: 'another long description'}
+          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', description: 'another long description', session_id: session.token}
         end
         it 'returns a OK (200) response code when updating the description' do
           expect(last_response.status).to be 200
@@ -61,7 +63,7 @@ RSpec.shared_examples 'PUT /:id' do
       end
       describe 'update of the privacy' do
         before do
-          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', is_private: false}
+          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', is_private: false, session_id: session.token}
         end
         it 'returns a OK (200) response code when updating the privacy' do
           expect(last_response.status).to be 200
@@ -76,7 +78,7 @@ RSpec.shared_examples 'PUT /:id' do
       describe 'update of the tags' do
         describe 'update with an empty tags list' do
           before do
-            put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', tags: []}
+            put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', tags: [], session_id: session.token}
           end
           it 'returns a OK (200) response code when updating the tags' do
             expect(last_response.status).to be 200
@@ -93,7 +95,7 @@ RSpec.shared_examples 'PUT /:id' do
         end
         describe 'update with another tags list' do
           before do
-            put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', tags: ['random_tag']}
+            put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', tags: ['random_tag'], session_id: session.token}
           end
           it 'returns a OK (200) response code when updating the tags' do
             expect(last_response.status).to be 200
@@ -119,10 +121,68 @@ RSpec.shared_examples 'PUT /:id' do
 
     it_should_behave_like 'a route', 'put', '/campaign_id'
 
-    describe 'Not Found errors' do
-      describe 'Campaign not found error' do
+    describe '400 errors' do
+      describe 'session ID not given' do
         before do
-          put '/fake_campaign_id', {token: 'test_token', app_key: 'test_key'}
+          put '/campaign_id', {token: 'test_token', app_key: 'test_key', title: 'another title'}
+        end
+        it 'returns an Unprocessable Entity (400) response code when updating with an already used title' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body when updating with an already used title' do
+          expect(JSON.parse(last_response.body)).to include_json({
+            'status' => 400,
+            'field' => 'session_id',
+            'error' => 'required'
+          })
+        end
+      end
+
+      describe 'when the updated title is already used by another campaign' do
+        let!(:campaign) { create(:campaign, creator: account) }
+        let!(:other_campaign) { create(:campaign, id: 'another_campaign_id', title: 'another title', creator: account) }
+
+        before do
+          put '/campaign_id', {token: 'test_token', app_key: 'test_key', title: 'another title', session_id: session.token}
+        end
+        it 'returns an 400 status' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body' do
+          expect(JSON.parse(last_response.body)).to include_json({
+            'status' => 400,
+            'field' => 'title',
+            'error' => 'uniq'
+          })
+        end
+      end
+    end
+
+    describe '403 error' do
+      describe 'Session ID not allowed' do
+        let!(:another_account) { create(:another_account) }
+        let!(:another_session) { create(:another_session, account: another_account) }
+
+        before do
+          get '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: another_session.token}
+        end
+        it 'Returns a 403 error' do
+          expect(last_response.status).to be 403
+        end
+        it 'Returns the correct body' do
+          expect(JSON.parse(last_response.body)).to include_json({
+            'status' => 403,
+            'field' => 'session_id',
+            'error' => 'forbidden'
+          })
+        end
+      end
+    end
+
+    describe '404 errors' do
+      describe 'Campaign not found' do
+        before do
+          put '/fake_campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'correctly returns a Not Found (404) error when the campaign you want to update does not exist' do
           expect(last_response.status).to be 404
@@ -135,24 +195,19 @@ RSpec.shared_examples 'PUT /:id' do
           })
         end
       end
-    end
 
-    describe 'Unprocessable entity errors' do
-      describe 'when the updated title is already used by another campaign' do
-        let!(:campaign) { create(:campaign, creator: account) }
-        let!(:other_campaign) { create(:campaign, id: 'another_campaign_id', title: 'another title', creator: account) }
-
+      describe 'Session not found' do
         before do
-          put '/campaign_id', {token: 'test_token', app_key: 'test_key', title: 'another title'}
+          put '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: 'unknown_token'}
         end
-        it 'returns an Unprocessable Entity (400) response code when updating with an already used title' do
-          expect(last_response.status).to be 400
+        it 'correctly returns a Not Found (404) error when the campaign you want to update does not exist' do
+          expect(last_response.status).to be 404
         end
-        it 'returns the correct body when updating with an already used title' do
+        it 'returns the correct body when the campaign does not exist' do
           expect(JSON.parse(last_response.body)).to include_json({
-            'status' => 400,
-            'field' => 'title',
-            'error' => 'uniq'
+            'status' => 404,
+            'field' => 'session_id',
+            'error' => 'unknown'
           })
         end
       end

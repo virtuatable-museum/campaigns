@@ -18,14 +18,12 @@ module Controllers
     end
 
     declare_route 'get', '/:id' do
-      session = check_session('informations')
-      campaign = get_campaign_for(session, 'informations')
+      campaign = check_session_and_campaign(action: 'informations', strict: false)
       halt 200, Decorators::Campaign.new(campaign).to_h.to_json
     end
 
     declare_route 'get', '/:id/invitations' do
-      campaign = Arkaan::Campaign.where(id: params['id']).first
-      custom_error(404, 'invitations.campaign_id.unknown') if campaign.nil? 
+      campaign = check_session_and_campaign(action: 'invitations', strict: false)
       halt 200, Decorators::Campaign.new(campaign).invitations.to_json
     end
 
@@ -41,9 +39,7 @@ module Controllers
     end
 
     declare_route 'put', '/:id' do
-      campaign = Arkaan::Campaign.where(id: params['id']).first
-      custom_error(404, 'update.campaign_id.unknown') if campaign.nil?
-      
+      campaign = check_session_and_campaign(action: 'update')
       if Services::Campaigns.instance.update(campaign, campaign_params, tags)
         halt 200, {message: 'updated'}.to_json
       else
@@ -52,8 +48,7 @@ module Controllers
     end
 
     declare_route 'delete', '/:id' do
-      session = check_session('update')
-      campaign = get_campaign_for(session, 'update', strict: true)
+      campaign = check_session_and_campaign(action: 'deletion')
       campaign.delete
       halt 200, {message: 'deleted'}.to_json
     end
@@ -64,6 +59,25 @@ module Controllers
       params.select do |key, value|
         ['title', 'description', 'is_private', 'creator_id'].include?(key)
       end
+    end
+
+    # Checks several parameters about the session and the campaign :
+    # - the session ID must be given
+    # - the session must be found in the database
+    # - the campaign must be found in the database
+    # - the user must be authorized to act on the campaign.
+    # To be authorized to to act on a campaign, the user :
+    # - must have created it in strict mode
+    # - must have created it or be invited in it, or the campaign bu public in not strict mode.
+    #
+    # @param action [String] the path to the errors in the errors configuration file.
+    # @param strict [Boolean] TRUE to use strict mode, FALSE otherwise.
+    #
+    # @return [Arkaan::Campaign] the campaign found, where the user is authorized.
+    def check_session_and_campaign(action:, strict: true)
+      session = check_session(action)
+      campaign = get_campaign_for(session, action, strict: strict)
+      return campaign
     end
 
     # Checks if the session ID is given, and the session currently existing.

@@ -15,6 +15,9 @@ errors:
   deletion:
     campaign_id:
       unknown: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-3'
+    session_id:
+      required: ''
+      unknown: ''
   informations:
     campaign_id:
       unknown: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found'
@@ -24,6 +27,9 @@ errors:
   invitations:
     campaign_id:
       unknown: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-1'
+    session_id:
+      required: ''
+      unknown: ''
   list:
     session_id:
       required: ''
