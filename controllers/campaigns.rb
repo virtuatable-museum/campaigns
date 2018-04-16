@@ -18,8 +18,10 @@ module Controllers
     end
 
     declare_route 'get', '/:id' do
+      session = check_session('informations')
       campaign = Arkaan::Campaign.where(id: params['id']).first
       custom_error(404, 'informations.campaign_id.unknown') if campaign.nil?
+      custom_error(403, 'informations.session_id.forbidden') if !Services::Permissions.instance.authorized?(campaign, session)
       halt 200, Decorators::Campaign.new(campaign).to_h.to_json
     end
 
@@ -64,7 +66,7 @@ module Controllers
       end
     end
 
-    def check_session(route)
+    def check_session(route, check_ownership: false)
       check_presence('session_id', route: route)
       session = Arkaan::Authentication::Session.where(token: params['session_id']).first
       custom_error(404, "#{route}.session_id.unknown") if session.nil?

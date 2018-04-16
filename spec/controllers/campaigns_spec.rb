@@ -134,8 +134,10 @@ RSpec.describe Controllers::Campaigns do
     let!(:campaign) { create(:campaign, creator: account) }
 
     describe 'Nominal case' do
+      let!(:session) { create(:session, account: account) }
+
       before do
-        get '/campaign_id', {token: 'test_token', app_key: 'test_key'}
+        get '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'returns a OK (200) response code when successfully getting a camapign' do
         expect(last_response.status).to be 200
@@ -155,12 +157,87 @@ RSpec.describe Controllers::Campaigns do
       end
     end
 
+    describe 'Alternative cases' do
+      let!(:another_account) { create(:another_account) }
+      let!(:session) { create(:session, account: another_account) }
+
+      describe 'The requester has a pending invitation' do
+        let!(:invitation) { create(:pending_invitation, creator: account, account: another_account, campaign: campaign)}
+
+        before do
+          get '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        end
+        it 'Returns a OK (200) status' do
+          expect(last_response.status).to be 200
+        end
+        it 'Returns the correct body' do
+          expect(JSON.parse(last_response.body)).to eq({
+            'id' => campaign.id.to_s,
+            'title' => 'test_title',
+            'description' => 'A longer description of the campaign',
+            'creator' => {
+              'id' => account.id.to_s,
+              'username' => 'Babausse'
+            },
+            'is_private' => true,
+            'tags' => ['test_tag']
+          })
+        end
+      end
+      describe 'The request has an accepted invitation' do
+        let!(:invitation) { create(:accepted_invitation, creator: account, account: another_account, campaign: campaign)}
+
+        before do
+          get '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        end
+        it 'Returns a OK (200) status' do
+          expect(last_response.status).to be 200
+        end
+        it 'Returns the correct body' do
+          expect(JSON.parse(last_response.body)).to eq({
+            'id' => campaign.id.to_s,
+            'title' => 'test_title',
+            'description' => 'A longer description of the campaign',
+            'creator' => {
+              'id' => account.id.to_s,
+              'username' => 'Babausse'
+            },
+            'is_private' => true,
+            'tags' => ['test_tag']
+          })
+        end
+      end
+    end
+
     it_should_behave_like 'a route', 'get', '/campaign_id'
+
+    describe 'Forbidden error' do
+      describe 'Session ID not allowed' do
+        let!(:another_account) { create(:another_account) }
+        let!(:session) { create(:session, account: another_account) }
+
+        before do
+          get '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        end
+        it 'Returns a 403 error' do
+          expect(last_response.status).to be 403
+        end
+        it 'Returns the correct body' do
+          expect(JSON.parse(last_response.body)).to include_json({
+            'status' => 403,
+            'field' => 'session_id',
+            'error' => 'forbidden'
+          })
+        end
+      end
+    end
 
     describe 'Not Found Errors' do
       describe 'Campaign not found error' do
+        let!(:session) { create(:session, account: account) }
+        
         before do
-          get '/fake_campaign_id', {token: 'test_token', app_key: 'test_key'}
+          get '/fake_campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'correctly returns a Not Found (404) error when the campaign you want to get does not exist' do
           expect(last_response.status).to be 404
