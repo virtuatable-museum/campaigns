@@ -81,19 +81,27 @@ module Controllers
     end
 
     # Checks if the session ID is given, and the session currently existing.
-    # @param route [String] the category in the configuration file to find the errors for the session.
+    # @param action [String] the category in the configuration file to find the errors for the session.
     # @return [Arkaan::Authentication::Session] the session found for the given session_id.
-    def check_session(route)
-      check_presence('session_id', route: route)
+    def check_session(action)
+      check_presence('session_id', route: action)
       session = Arkaan::Authentication::Session.where(token: params['session_id']).first
-      custom_error(404, "#{route}.session_id.unknown") if session.nil?
+      custom_error(404, "#{action}.session_id.unknown") if session.nil?
       return session
     end
 
-    def get_campaign_for(session, route, strict: false)
+    # Gets the campaign for the given session, checking its privilege to access it.
+    # See the :check_session_and_campaign above for details about permissions.
+    #
+    # @param session [Arkaan::Authentication::Session] the session to check the privilege of.
+    # @param action [String] the category in the configuration file to find the errors for the session.
+    # @param strict [Boolean] TRUE to use strict mode, FALSE otherwise.
+    #
+    # @return [Arkaan::Campaign] the campaign found, where the user is authorized.
+    def get_campaign_for(session, action, strict: false)
       campaign = Arkaan::Campaign.where(id: params['id']).first
-      custom_error(404, "#{route}.campaign_id.unknown") if campaign.nil?
-      custom_error(403, "#{route}.session_id.forbidden") if !Services::Permissions.instance.authorized?(campaign, session, strict: strict)
+      custom_error(404, "#{action}.campaign_id.unknown") if campaign.nil?
+      custom_error(403, "#{action}.session_id.forbidden") if !Services::Permissions.instance.authorized?(campaign, session, strict: strict)
       return campaign
     end
 
