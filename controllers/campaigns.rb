@@ -52,29 +52,34 @@ module Controllers
     end
 
     declare_route 'delete', '/:id' do
-      campaign = Arkaan::Campaign.where(id: params['id']).first
-      custom_error(404, 'deletion.campaign_id.unknown') if campaign.nil?
+      session = check_session('update')
+      campaign = get_campaign_for(session, 'update', strict: true)
       campaign.delete
       halt 200, {message: 'deleted'}.to_json
     end
 
+    # Returns the parameters allowed to create or update a campaign.
+    # @return [Hash] the parameters allowed in the dition or creation of a campaign.
     def campaign_params
       params.select do |key, value|
         ['title', 'description', 'is_private', 'creator_id'].include?(key)
       end
     end
 
-    def check_session(route, check_ownership: false)
+    # Checks if the session ID is given, and the session currently existing.
+    # @param route [String] the category in the configuration file to find the errors for the session.
+    # @return [Arkaan::Authentication::Session] the session found for the given session_id.
+    def check_session(route)
       check_presence('session_id', route: route)
       session = Arkaan::Authentication::Session.where(token: params['session_id']).first
       custom_error(404, "#{route}.session_id.unknown") if session.nil?
       return session
     end
 
-    def get_campaign_for(session, route)
+    def get_campaign_for(session, route, strict: false)
       campaign = Arkaan::Campaign.where(id: params['id']).first
       custom_error(404, "#{route}.campaign_id.unknown") if campaign.nil?
-      custom_error(403, "#{route}.session_id.forbidden") if !Services::Permissions.instance.authorized?(campaign, session)
+      custom_error(403, "#{route}.session_id.forbidden") if !Services::Permissions.instance.authorized?(campaign, session, strict: strict)
       return campaign
     end
 

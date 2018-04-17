@@ -35,6 +35,9 @@ errors:
   update:
     campaign_id:
       unknown: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-2'
+    session_id:
+      required: ''
+      unknown: ''
     title:
       minlength: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#title-too-short-1'
       required: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-1'
