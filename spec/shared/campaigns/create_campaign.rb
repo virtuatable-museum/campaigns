@@ -70,6 +70,51 @@ RSpec.shared_examples 'POST /' do
       end
     end
 
+    describe 'when the privacy flag is given as a string' do
+      before do
+        post '/', {token: 'test_token', app_key: 'test_key', title: 'some title', is_private: 'true', creator_id: account.id.to_s}
+      end
+      it 'has correctly created a campaign' do
+        expect(Arkaan::Campaign.all.count).to be 1
+      end
+      it 'has created no tags in the database' do
+        expect(Arkaan::Campaigns::Tag.all.count).to be 0
+      end
+      it 'has created a campaign with a right privacy setting' do
+        expect(Arkaan::Campaign.first.is_private).to eq(true)
+      end
+    end
+
+    describe 'when the privacy flag is given at false' do
+      before do
+        post '/', {token: 'test_token', app_key: 'test_key', title: 'some title', is_private: false, creator_id: account.id.to_s}
+      end
+      it 'has correctly created a campaign' do
+        expect(Arkaan::Campaign.all.count).to be 1
+      end
+      it 'has created no tags in the database' do
+        expect(Arkaan::Campaigns::Tag.all.count).to be 0
+      end
+      it 'has created a campaign with a right privacy setting' do
+        expect(Arkaan::Campaign.first.is_private).to eq(false)
+      end
+    end
+
+    describe 'when the privacy flag is given as a string at false' do
+      before do
+        post '/', {token: 'test_token', app_key: 'test_key', title: 'some title', is_private: 'false', creator_id: account.id.to_s}
+      end
+      it 'has correctly created a campaign' do
+        expect(Arkaan::Campaign.all.count).to be 1
+      end
+      it 'has created no tags in the database' do
+        expect(Arkaan::Campaigns::Tag.all.count).to be 0
+      end
+      it 'has created a campaign with a right privacy setting' do
+        expect(Arkaan::Campaign.first.is_private).to eq(false)
+      end
+    end
+
     describe 'when the same tag is given several times' do
       before do
         post '/', {
