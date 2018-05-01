@@ -24,6 +24,7 @@ RSpec.shared_examples 'GET /' do
                 'id' => other_account.id.to_s,
                 'username' => 'other_username'
               },
+              'invitation' => nil,
               'is_private' => false,
               'tags' => ['test_tag']
             }

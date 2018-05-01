@@ -54,5 +54,20 @@ module Decorators
         tags: object.tags
       }
     end
+
+    def with_invitations(session)
+      return {
+        id: _id.to_s,
+        title: object.title,
+        description: object.description,
+        is_private: object.is_private,
+        creator: {
+          id: object.creator.id.to_s,
+          username: object.creator.username
+        },
+        invitation: object.invitations.where(account: session.account).first,
+        tags: object.tags
+      }
+    end
   end
 end
