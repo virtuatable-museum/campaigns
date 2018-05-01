@@ -35,12 +35,12 @@ RSpec.shared_examples 'GET /:id' do
       let!(:session) { create(:session, account: another_account) }
       
       describe 'The requester has a pending invitation' do
-        let!(:invitation) { create(:pending_invitation, creator: account, account: another_account, campaign: campaign)}
+        let!(:invitation) { create(:pending_invitation, account: another_account, campaign: campaign)}
         
         include_examples 'Getting a campaign'
       end
       describe 'The request has an accepted invitation' do
-        let!(:invitation) { create(:accepted_invitation, creator: account, account: another_account, campaign: campaign)}
+        let!(:invitation) { create(:accepted_invitation, account: another_account, campaign: campaign)}
       
         include_examples 'Getting a campaign'
       end

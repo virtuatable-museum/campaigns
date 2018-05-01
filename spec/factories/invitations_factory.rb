@@ -2,10 +2,10 @@ FactoryGirl.define do
   factory :empty_invitation, class: Arkaan::Campaigns::Invitation do
     factory :invitation do
       factory :accepted_invitation do
-        accepted true
+        status :accepted
       end
       factory :pending_invitation do
-        accepted false
+        status :pending
       end
     end
   end

@@ -1,5 +1,5 @@
-RSpec.shared_examples 'GET /own' do
-  describe 'GET /own' do
+RSpec.shared_examples 'GET /creations' do
+  describe 'GET /creations' do
     let!(:other_account) { create(:account, username: 'other_username', email: 'other@mail.com') }
     let!(:campaign) { create(:campaign, creator: account) }
     let!(:other_campaign) { create(:campaign, id: 'other_campaign_id', creator: other_account, title: 'another title') }
@@ -8,7 +8,7 @@ RSpec.shared_examples 'GET /own' do
 
     describe 'Nominal case' do
       before do
-        get '/own', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/creations', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'Returns a 200 (OK) status' do
         expect(last_response.status).to be 200
@@ -47,7 +47,7 @@ RSpec.shared_examples 'GET /own' do
     describe '400 errors' do
       describe 'session ID not given' do
         before do
-          get '/own', {token: 'test_token', app_key: 'test_key'}
+          get '/creations', {token: 'test_token', app_key: 'test_key'}
         end
         it 'Raises a Bad Request (400) error' do
           expect(last_response.status).to be 400
@@ -65,7 +65,7 @@ RSpec.shared_examples 'GET /own' do
     describe '404 errors' do
       describe 'session ID not found' do
         before do
-          get '/own', {token: 'test_token', app_key: 'test_key', session_id: 'unknown_session_id'}
+          get '/creations', {token: 'test_token', app_key: 'test_key', session_id: 'unknown_session_id'}
         end
         it 'Raises a Not Found (404)) error' do
           expect(last_response.status).to be 404

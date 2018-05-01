@@ -31,18 +31,14 @@ module Decorators
     end
 
     def invitations
-      accepted = object.invitations.where(accepted: true)
-      pending = object.invitations.where(accepted: false)
-      return {
-        accepted: {
-          count: accepted.count,
-          items: Decorators::Invitation.decorate_collection(accepted).map(&:to_h)
-        },
-        pending: {
-          count: pending.count,
-          items: Decorators::Invitation.decorate_collection(pending).map(&:to_h)
-        }
+      grouped_invitations = object.invitations.group_by { |inv| inv.status.to_s }
+      mapped_invitations = grouped_invitations.map { |status, invitations|
+        [status, {
+          count: invitations.count,
+          items: Decorators::Invitation.decorate_collection(invitations).map(&:to_h)
+        }]
       }
+      return Hash[mapped_invitations]
     end
 
     def to_h

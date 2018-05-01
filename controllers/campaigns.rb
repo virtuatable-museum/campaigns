@@ -10,7 +10,7 @@ module Controllers
       halt 200, {count: campaigns.count, items: decorated.map(&:to_h)}.to_json
     end
 
-    declare_route 'get', '/own' do
+    declare_route 'get', '/creations' do
       session = check_session('own_list')
       campaigns = Arkaan::Campaign.where(creator: session.account)
       decorated = Decorators::Campaign.decorate_collection(campaigns)

@@ -14,7 +14,7 @@ RSpec.describe Controllers::Campaigns do
 
   include_examples 'GET /'
 
-  include_examples 'GET /own'
+  include_examples 'GET /creations'
 
   include_examples 'GET /:id'
 
