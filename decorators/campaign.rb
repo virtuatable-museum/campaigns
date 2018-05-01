@@ -56,6 +56,7 @@ module Decorators
     end
 
     def with_invitations(session)
+      invitation = object.invitations.where(account: session.account).first
       return {
         id: _id.to_s,
         title: object.title,
@@ -65,7 +66,10 @@ module Decorators
           id: object.creator.id.to_s,
           username: object.creator.username
         },
-        invitation: object.invitations.where(account: session.account).first,
+        invitation: invitation.nil? ? nil : {
+          id: invitation.id,
+          status: invitation.enum_status.to_s
+        },
         tags: object.tags
       }
     end
