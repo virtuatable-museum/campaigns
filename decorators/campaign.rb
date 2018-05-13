@@ -67,7 +67,7 @@ module Decorators
           username: object.creator.username
         },
         invitation: invitation.nil? ? nil : {
-          id: invitation.id,
+          id: invitation.id.to_s,
           status: invitation.enum_status.to_s
         },
         tags: object.tags
