@@ -26,5 +26,13 @@ module Services
       end
       return campaign.save
     end
+
+    def list(session)
+      blocked_invitations = Arkaan::Campaigns::Invitation.where(account: session.account, enum_status: :blocked)
+      blocked_campaign_ids = blocked_invitations.pluck(:campaign_id)
+      campaigns = Arkaan::Campaign.where(is_private: false).not.where(creator: session.account).where(:_id.nin => blocked_campaign_ids)
+      decorated = Decorators::Campaign.decorate_collection(campaigns).map { |decorator| decorator.with_invitations(session) }
+      return decorated
+    end
   end
 end

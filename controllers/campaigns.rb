@@ -5,9 +5,8 @@ module Controllers
 
     declare_route 'get', '/' do
       session = check_session('list')
-      campaigns = Arkaan::Campaign.where(is_private: false).not.where(creator: session.account)
-      decorated = Decorators::Campaign.decorate_collection(campaigns).map { |decorator| decorator.with_invitations(session) }
-      halt 200, {count: campaigns.count, items: decorated}.to_json
+      campaigns = Services::Campaigns.instance.list(session)
+      halt 200, {count: campaigns.count, items: campaigns}.to_json
     end
 
     declare_route 'get', '/creations' do

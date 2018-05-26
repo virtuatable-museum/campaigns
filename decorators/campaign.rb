@@ -57,6 +57,7 @@ module Decorators
 
     def with_invitations(session)
       invitation = object.invitations.where(account: session.account).first
+      display_inv = invitation.nil? || invitation.status_left? || invitation.status_expelled?
       return {
         id: _id.to_s,
         title: object.title,
@@ -66,8 +67,9 @@ module Decorators
           id: object.creator.id.to_s,
           username: object.creator.username
         },
-        invitation: invitation.nil? ? nil : {
+        invitation: display_inv ? nil : {
           id: invitation.id.to_s,
+          created_at: invitation.created_at.utc.iso8601,
           status: invitation.enum_status.to_s
         },
         tags: object.tags
