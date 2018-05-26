@@ -194,6 +194,35 @@ RSpec.shared_examples 'GET /' do
         })
       end
     end
+    describe 'Campaign with refused invitation' do
+      let!(:invitation) { create(:refused_invitation, campaign: 'other_campaign_id', account: account) }
+      
+      before do
+        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+      end
+      it 'correctly returns a OK (200) status' do
+        expect(last_response.status).to be 200
+      end
+      it 'returns the correct body' do
+        expect(JSON.parse(last_response.body)).to eq({
+          'count' => 1,
+          'items' => [
+            {
+              'id' => other_campaign.id.to_s,
+              'title' => 'another title',
+              'description' => 'A longer description of the campaign',
+              'creator' => {
+                'id' => other_account.id.to_s,
+                'username' => 'other_username'
+              },
+              'invitation' => nil,
+              'is_private' => false,
+              'tags' => ['test_tag']
+            }
+          ]
+        })
+      end
+    end
     describe 'Campaign with blocked invitation' do
       let!(:invitation) { create(:blocked_invitation, campaign: 'other_campaign_id', account: account) }
       

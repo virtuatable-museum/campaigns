@@ -57,7 +57,7 @@ module Decorators
 
     def with_invitations(session)
       invitation = object.invitations.where(account: session.account).first
-      display_inv = invitation.nil? || invitation.status_left? || invitation.status_expelled?
+      display_inv = invitation.nil? || invitation.status_left? || invitation.status_expelled? || invitation.status_refused?
       return {
         id: _id.to_s,
         title: object.title,
