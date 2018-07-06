@@ -32,6 +32,7 @@ RSpec.shared_examples 'GET /' do
               'invitation' => nil,
               'is_private' => false,
               'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             }
           ]
@@ -66,6 +67,7 @@ RSpec.shared_examples 'GET /' do
               },
               'is_private' => false,
               'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             }
           ]
@@ -100,6 +102,7 @@ RSpec.shared_examples 'GET /' do
               },
               'is_private' => false,
               'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             }
           ]
@@ -134,6 +137,7 @@ RSpec.shared_examples 'GET /' do
               },
               'is_private' => false,
               'max_players' => 5,
+              'current_players' => 1,
               'tags' => ['test_tag']
             }
           ]
@@ -164,6 +168,7 @@ RSpec.shared_examples 'GET /' do
               'invitation' => nil,
               'is_private' => false,
               'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             }
           ]
@@ -194,6 +199,7 @@ RSpec.shared_examples 'GET /' do
               'invitation' => nil,
               'is_private' => false,
               'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             }
           ]
@@ -224,6 +230,7 @@ RSpec.shared_examples 'GET /' do
               'invitation' => nil,
               'is_private' => false,
               'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             }
           ]
@@ -271,6 +278,7 @@ RSpec.shared_examples 'GET /' do
               },
               'is_private' => false,
               'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             }
           ]
