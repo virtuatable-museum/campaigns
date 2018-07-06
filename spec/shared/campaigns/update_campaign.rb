@@ -1,6 +1,6 @@
 RSpec.shared_examples 'PUT /:id' do
   describe 'PUT /:id' do
-    let!(:campaign) { create(:campaign, creator: account) }
+    let!(:campaign) { create(:campaign, creator: account, max_players: 4) }
     let!(:counter) { Arkaan::Campaigns::Tag.create(content: 'test_tag', count: 1) }
     let!(:session) { create(:session, account: account) }
 
@@ -27,6 +27,9 @@ RSpec.shared_examples 'PUT /:id' do
           end
           it 'has not changed the privacy of the campaign' do
             expect(updated_campaign.is_private).to be true
+          end
+          it 'has not changed the maximum number of players' do
+            expect(updated_campaign.max_players).to be 4
           end
           it 'has not changed the tags of the campaign' do
             expect(updated_campaign.tags).to eq ['test_tag']
@@ -73,6 +76,20 @@ RSpec.shared_examples 'PUT /:id' do
         end
         it 'has correctly updated the privacy of the campaign' do
           expect(Arkaan::Campaign.where(id: 'campaign_id').first.is_private).to be false
+        end
+      end
+      describe 'update of the max players' do
+        before do
+          put "/#{campaign.id.to_s}", {token: 'test_token', app_key: 'test_key', max_players: 10, session_id: session.token}
+        end
+        it 'returns a OK (200) response code when updating the privacy' do
+          expect(last_response.status).to be 200
+        end
+        it 'returns the right body when updating the privacy' do
+          expect(JSON.parse(last_response.body)).to eq({'message' => 'updated'})
+        end
+        it 'has correctly updated the privacy of the campaign' do
+          expect(Arkaan::Campaign.where(id: 'campaign_id').first.max_players).to be 10
         end
       end
       describe 'update of the tags' do

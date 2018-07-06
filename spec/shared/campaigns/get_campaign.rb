@@ -15,6 +15,7 @@ RSpec.shared_examples 'Getting a campaign' do
         'username' => campaign.creator.username
       },
       'is_private' => campaign.is_private,
+      'max_players' => campaign.max_players,
       'tags' => campaign.tags
     })
   end

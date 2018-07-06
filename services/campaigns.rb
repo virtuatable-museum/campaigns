@@ -15,6 +15,11 @@ module Services
       return campaign
     end
 
+    # Updates a given campaign with the provided parameters and tags.
+    # @param campaign [Arkaan::Campaign] the campaign to update
+    # @param parameters [Hash] an associated array of fields to update on the campaign.
+    # @param tags [Array<String>] an array of tags to put in the campaign. It ERASES the previous list of tags and replaces it.
+    # @return [Boolean] TRUE if the campaign has successfully been updated, FALSE otherwise.
     def update(campaign, parameters, tags)
       campaign = Decorators::Campaign.new(campaign)
       parameters.each do |key, value|
@@ -27,6 +32,9 @@ module Services
       return campaign.save
     end
 
+    # Gets the list of campaigns available for the account of the given session
+    # @param [Arkaan::Authentication::Session] the session associated with the account you want the list of campaigns.
+    # @return [Array<Decorators::Campaign>] the list of campaigns for this account
     def list(session)
       blocked_invitations = Arkaan::Campaigns::Invitation.where(account: session.account, enum_status: :blocked)
       blocked_campaign_ids = blocked_invitations.pluck(:campaign_id)

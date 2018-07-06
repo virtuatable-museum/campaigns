@@ -47,6 +47,7 @@ module Decorators
         title: object.title,
         description: object.description,
         is_private: object.is_private,
+        max_players: object.max_players,
         creator: {
           id: object.creator.id.to_s,
           username: object.creator.username
@@ -63,6 +64,7 @@ module Decorators
         title: object.title,
         description: object.description,
         is_private: object.is_private,
+        max_players: object.max_players,
         creator: {
           id: object.creator.id.to_s,
           username: object.creator.username

@@ -31,6 +31,7 @@ RSpec.shared_examples 'GET /' do
               },
               'invitation' => nil,
               'is_private' => false,
+              'max_players' => 5,
               'tags' => ['test_tag']
             }
           ]
@@ -64,6 +65,7 @@ RSpec.shared_examples 'GET /' do
                 'status' => 'pending'
               },
               'is_private' => false,
+              'max_players' => 5,
               'tags' => ['test_tag']
             }
           ]
@@ -97,6 +99,7 @@ RSpec.shared_examples 'GET /' do
                 'status' => 'request'
               },
               'is_private' => false,
+              'max_players' => 5,
               'tags' => ['test_tag']
             }
           ]
@@ -130,6 +133,7 @@ RSpec.shared_examples 'GET /' do
                 'status' => 'accepted'
               },
               'is_private' => false,
+              'max_players' => 5,
               'tags' => ['test_tag']
             }
           ]
@@ -159,6 +163,7 @@ RSpec.shared_examples 'GET /' do
               },
               'invitation' => nil,
               'is_private' => false,
+              'max_players' => 5,
               'tags' => ['test_tag']
             }
           ]
@@ -188,6 +193,7 @@ RSpec.shared_examples 'GET /' do
               },
               'invitation' => nil,
               'is_private' => false,
+              'max_players' => 5,
               'tags' => ['test_tag']
             }
           ]
@@ -217,6 +223,7 @@ RSpec.shared_examples 'GET /' do
               },
               'invitation' => nil,
               'is_private' => false,
+              'max_players' => 5,
               'tags' => ['test_tag']
             }
           ]
@@ -263,6 +270,7 @@ RSpec.shared_examples 'GET /' do
                 'status' => 'ignored'
               },
               'is_private' => false,
+              'max_players' => 5,
               'tags' => ['test_tag']
             }
           ]
