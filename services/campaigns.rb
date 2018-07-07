@@ -27,6 +27,13 @@ module Services
       return campaign.save
     end
 
+    def delete(campaign)
+      campaign.invitations.each do |invitation|
+        invitation.delete
+      end
+      return campaign.delete
+    end
+
     def list(session)
       blocked_invitations = Arkaan::Campaigns::Invitation.where(account: session.account, enum_status: :blocked)
       blocked_campaign_ids = blocked_invitations.pluck(:campaign_id)

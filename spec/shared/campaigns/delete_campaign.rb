@@ -1,6 +1,8 @@
 RSpec.shared_examples 'DELETE /:id' do
   describe 'DELETE /:id' do
+    let!(:other_account) { create(:account, username: 'Other username', email: 'test@email.com') }
     let!(:campaign) { create(:campaign, creator: account) }
+    let!(:invitation) { create(:accepted_invitation, campaign: campaign, account: other_account) }
     let!(:session) { create(:session, account: account) }
 
     describe 'Nominal case' do
@@ -15,6 +17,9 @@ RSpec.shared_examples 'DELETE /:id' do
       end
       it 'has deleted the campaign properly' do
         expect(Arkaan::Campaign.count).to be 0
+      end
+      it 'has deleted the invitation properly' do
+        expect(Arkaan::Campaigns::Invitation.count).to be 0
       end
     end
 

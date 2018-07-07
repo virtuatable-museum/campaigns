@@ -48,7 +48,7 @@ module Controllers
 
     declare_route 'delete', '/:id' do
       campaign = check_session_and_campaign(action: 'deletion')
-      campaign.delete
+      Services::Campaigns.instance.delete(campaign)
       halt 200, {message: 'deleted'}.to_json
     end
 
