@@ -41,12 +41,18 @@ module Decorators
       return Hash[mapped_invitations]
     end
 
+    def players_count
+      return object.invitations.where(enum_status: :accepted).count
+    end
+
     def to_h
       return {
         id: _id.to_s,
         title: object.title,
         description: object.description,
         is_private: object.is_private,
+        max_players: object.max_players,
+        current_players: players_count,
         creator: {
           id: object.creator.id.to_s,
           username: object.creator.username
@@ -63,6 +69,8 @@ module Decorators
         title: object.title,
         description: object.description,
         is_private: object.is_private,
+        max_players: object.max_players,
+        current_players: players_count,
         creator: {
           id: object.creator.id.to_s,
           username: object.creator.username

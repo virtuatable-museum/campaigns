@@ -26,6 +26,8 @@ RSpec.shared_examples 'GET /creations' do
                 'username' => 'Babausse'
               },
               'is_private' => true,
+              'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             },
             {
@@ -37,6 +39,8 @@ RSpec.shared_examples 'GET /creations' do
                 'username' => 'Babausse'
               },
               'is_private' => false,
+              'max_players' => 5,
+              'current_players' => 0,
               'tags' => ['test_tag']
             }
           ]

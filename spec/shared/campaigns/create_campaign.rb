@@ -8,6 +8,7 @@ RSpec.shared_examples 'POST /' do
           title: 'some title',
           description: 'test',
           is_private: true,
+          max_players: 4,
           creator_id: account.id.to_s,
           tags: ['test_tag']
         }
@@ -35,6 +36,9 @@ RSpec.shared_examples 'POST /' do
         end
         it 'has_created a campaign with the correct creator' do
           expect(created_campaign.creator_id.to_s).to eq account.id.to_s
+        end
+        it 'has created a campaign with the correct max number of player' do
+          expect(created_campaign.max_players).to be 4
         end
         it 'has inserted the correct tags in the campaign' do
           expect(created_campaign.tags).to eq ['test_tag']

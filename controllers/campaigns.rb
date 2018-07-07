@@ -56,7 +56,7 @@ module Controllers
     # @return [Hash] the parameters allowed in the dition or creation of a campaign.
     def campaign_params
       params.select do |key, value|
-        ['title', 'description', 'is_private', 'creator_id'].include?(key)
+        ['title', 'description', 'is_private', 'creator_id', 'max_players'].include?(key)
       end
     end
 
