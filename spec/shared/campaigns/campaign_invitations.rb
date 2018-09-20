@@ -17,26 +17,18 @@ RSpec.shared_examples 'GET /:id/invitations' do
         expect(last_response.status).to be 200
       end
       it 'Returns the correct invitations when getting the invitations' do
-        expect(last_response.body).to include_json({
-          'accepted' => {
-            'count' => 1,
-            'items' => [
-              {
-                'id' => accepted_invitation.id.to_s,
-                'username' => 'Babausse'
-              }
-            ]
+        expect(last_response.body).to include_json([
+          {
+            'id' => accepted_invitation.id.to_s,
+            'status' => 'accepted',
+            'username' => 'Babausse'
           },
-          'pending' => {
-            'count' => 1,
-            'items' => [
-              {
-                'id' => pending_invitation.id.to_s,
-                'username' => 'Third username'
-              }
-            ]
+          {
+            'id' => pending_invitation.id.to_s,
+            'status' => 'pending',
+            'username' => 'Third username'
           }
-        })
+        ])
       end
     end
 

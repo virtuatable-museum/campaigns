@@ -31,14 +31,7 @@ module Decorators
     end
 
     def invitations
-      grouped_invitations = object.invitations.group_by { |inv| inv.status.to_s }
-      mapped_invitations = grouped_invitations.map { |status, invitations|
-        [status, {
-          count: invitations.count,
-          items: Decorators::Invitation.decorate_collection(invitations).map(&:to_h)
-        }]
-      }
-      return Hash[mapped_invitations]
+      Decorators::Invitation.decorate_collection(object.invitations.order_by(enum_status: :asc)).map(&:to_h)
     end
 
     def players_count
