@@ -6,7 +6,7 @@ RSpec.shared_examples 'GET /:id/invitations' do
     let!(:third_account) { create(:account, username: 'Third username', email: 'third@email.com') }
     let!(:campaign) { create(:campaign, creator: account) }
     let!(:pending_invitation) { create(:invitation, account: third_account, campaign: campaign) }
-    let!(:accepted_invitation) { create(:invitation, account: account, campaign: campaign, status: :accepted) }
+    let!(:accepted_invitation) { create(:invitation, account: other_account, campaign: campaign, status: :accepted) }
     let!(:session) { create(:session, account: account) }
 
     describe 'Nominal case' do
@@ -19,14 +19,19 @@ RSpec.shared_examples 'GET /:id/invitations' do
       it 'Returns the correct invitations when getting the invitations' do
         expect(last_response.body).to include_json([
           {
-            'id' => accepted_invitation.id.to_s,
-            'status' => 'accepted',
+            'id' => campaign.invitations.where(enum_status: :creator).first.id.to_s,
+            'status' => 'creator',
             'username' => 'Babausse'
           },
           {
             'id' => pending_invitation.id.to_s,
             'status' => 'pending',
             'username' => 'Third username'
+          },
+          {
+            'id' => accepted_invitation.id.to_s,
+            'status' => 'accepted',
+            'username' => 'Other username'
           }
         ])
       end

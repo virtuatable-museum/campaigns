@@ -35,7 +35,7 @@ RSpec.shared_examples 'POST /' do
           expect(created_campaign.is_private).to be true
         end
         it 'has_created a campaign with the correct creator' do
-          expect(created_campaign.creator_id.to_s).to eq account.id.to_s
+          expect(created_campaign.creator.id.to_s).to eq account.id.to_s
         end
         it 'has created a campaign with the correct max number of player' do
           expect(created_campaign.max_players).to be 4

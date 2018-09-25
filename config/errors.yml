@@ -48,3 +48,12 @@ errors:
       minlength: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#title-too-short-1'
       required: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-1'
       uniq: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#title-not-uniq-for-this-user-1'
+  messages:
+    campaign_id:
+      unknown: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-2'
+    content:
+      required: ''
+      empty: ''
+    session_id:
+      required: ''
+      unknown: ''

@@ -5,11 +5,7 @@ module Decorators
     def to_h(session = nil)
       status = session.nil? ? object.status.to_s : status(session)
       campaign = object.campaign
-      return {
-        id: object.id.to_s,
-        status: status,
-        created_at: object.created_at.utc.iso8601,
-        username: object.account.username,
+      return to_simple_h(session).merge({
         campaign: {
           id: campaign.id.to_s,
           title: campaign.title,
@@ -20,6 +16,17 @@ module Decorators
           is_private: campaign.is_private,
           tags: campaign.tags
         }
+      })
+    end
+
+    def to_simple_h(session = nil)
+      status = session.nil? ? object.status.to_s : status(session)
+      campaign = object.campaign
+      return {
+        id: object.id.to_s,
+        status: status,
+        created_at: object.created_at.utc.iso8601,
+        username: object.account.username
       }
     end
 

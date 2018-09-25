@@ -11,7 +11,7 @@ module Controllers
 
     declare_route 'get', '/creations' do
       session = check_session('own_list')
-      campaigns = Arkaan::Campaign.where(creator: session.account)
+      campaigns = session.account.invitations.where(enum_status: :creator).map(&:campaign)
       decorated = Decorators::Campaign.decorate_collection(campaigns)
       halt 200, {count: campaigns.count, items: decorated.map(&:to_h)}.to_json
     end
@@ -23,7 +23,8 @@ module Controllers
 
     declare_route 'get', '/:id/invitations' do
       campaign = check_session_and_campaign(action: 'invitations', strict: false)
-      halt 200, Decorators::Campaign.new(campaign).invitations.to_json
+      invitations = campaign.invitations.order_by(status: :asc)
+      halt 200, Decorators::Invitation.decorate_collection(invitations).map(&:to_simple_h).to_json
     end
 
     declare_route 'post', '/' do
@@ -50,6 +51,15 @@ module Controllers
       campaign = check_session_and_campaign(action: 'deletion')
       Services::Campaigns.instance.delete(campaign)
       halt 200, {message: 'deleted'}.to_json
+    end
+
+    declare_route 'post', '/:id/messages' do
+      campaign = check_session_and_campaign(action: 'messages', strict: false)
+      check_presence('content', route: 'messages')
+      custom_error 400, 'messages.content.empty' if params['content'].empty?
+
+      message = Services::Messages.instance.create(params['session_id'], campaign, params['content'])
+      halt 200, {message: 'created'}.to_json
     end
 
     # Returns the parameters allowed to create or update a campaign.
