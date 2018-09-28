@@ -26,5 +26,7 @@ RSpec.describe Controllers::Campaigns do
 
   include_examples 'DELETE /:id'
 
+  include_examples 'GET /:id/messages'
+
   include_examples 'POST /:id/messages'
 end

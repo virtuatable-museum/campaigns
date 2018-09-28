@@ -53,6 +53,11 @@ module Controllers
       halt 200, {message: 'deleted'}.to_json
     end
 
+    declare_route 'get', '/:id/messages' do
+      campaign = check_session_and_campaign(action: 'messages_list', strict: false)
+      halt 200, Decorators::Message.decorate_collection(campaign.messages).map(&:to_h).to_json
+    end
+
     declare_route 'post', '/:id/messages' do
       campaign = check_session_and_campaign(action: 'messages', strict: false)
       check_presence('content', route: 'messages')

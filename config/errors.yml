@@ -57,3 +57,12 @@ errors:
     session_id:
       required: ''
       unknown: ''
+  messages_list:
+    campaign_id:
+      unknown: 'https://github.com/jdr-tools/wiki/wiki/Campaigns-API#campaign-id-not-found-2'
+    content:
+      required: ''
+      empty: ''
+    session_id:
+      required: ''
+      unknown: ''
