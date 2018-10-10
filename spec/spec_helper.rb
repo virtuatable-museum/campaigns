@@ -1,4 +1,5 @@
 ENV['RACK_ENV'] = 'test'
+ENV['APP_KEY'] = '5bbda7811d41c80b8bb19d54'
 
 require 'bundler'
 Bundler.require :test
