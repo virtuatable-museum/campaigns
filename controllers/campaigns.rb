@@ -13,7 +13,7 @@ module Controllers
       session = check_session('own_list')
       campaigns = session.account.invitations.where(enum_status: :creator).map(&:campaign)
       decorated = Decorators::Campaign.decorate_collection(campaigns)
-      halt 200, {count: campaigns.count, items: decorated.map(&:to_h)}.to_json
+      halt 200, {count: campaigns.count, items: decorated.map(&:to_creator_h)}.to_json
     end
 
     declare_route 'get', '/:id' do

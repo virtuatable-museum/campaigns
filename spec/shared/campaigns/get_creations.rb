@@ -5,6 +5,8 @@ RSpec.shared_examples 'GET /creations' do
     let!(:other_campaign) { create(:campaign, id: 'other_campaign_id', creator: other_account, title: 'another title') }
     let!(:third_campaign) { create(:campaign, id: 'other_campaign_id_2', creator: account, title: 'another title again', is_private: false) }
     let!(:session) { create(:session, account: account) }
+    let!(:invitation) { create(:accepted_invitation, campaign: campaign, account: other_account) }
+    let!(:other_invitation) { create(:pending_invitation, campaign: campaign, account: other_account) }
 
     describe 'Nominal case' do
       before do
@@ -27,7 +29,8 @@ RSpec.shared_examples 'GET /creations' do
               },
               'is_private' => true,
               'max_players' => 5,
-              'current_players' => 0,
+              'current_players' => 1,
+              'waiting_players' => 1,
               'tags' => ['test_tag']
             },
             {
@@ -41,6 +44,7 @@ RSpec.shared_examples 'GET /creations' do
               'is_private' => false,
               'max_players' => 5,
               'current_players' => 0,
+              'waiting_players' => 0,
               'tags' => ['test_tag']
             }
           ]

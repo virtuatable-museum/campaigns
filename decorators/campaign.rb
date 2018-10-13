@@ -38,6 +38,14 @@ module Decorators
       return object.invitations.where(enum_status: :accepted).count
     end
 
+    def waiting_count
+      return object.invitations.where(:enum_status.in => [:pending, :request]).count
+    end
+
+    def to_creator_h
+      return to_h.merge({waiting_players: waiting_count})
+    end
+
     def to_h
       return {
         id: _id.to_s,
@@ -57,24 +65,13 @@ module Decorators
     def with_invitations(session)
       invitation = object.invitations.where(account: session.account).first
       display_inv = invitation.nil? || invitation.status_left? || invitation.status_expelled? || invitation.status_refused?
-      return {
-        id: _id.to_s,
-        title: object.title,
-        description: object.description,
-        is_private: object.is_private,
-        max_players: object.max_players,
-        current_players: players_count,
-        creator: {
-          id: object.creator.id.to_s,
-          username: object.creator.username
-        },
+      return to_h.merge({
         invitation: display_inv ? nil : {
           id: invitation.id.to_s,
           created_at: invitation.created_at.utc.iso8601,
           status: invitation.enum_status.to_s
-        },
-        tags: object.tags
-      }
+        }
+      })
     end
   end
 end
