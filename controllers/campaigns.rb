@@ -64,7 +64,7 @@ module Controllers
       custom_error 400, 'messages.content.empty' if params['content'].empty?
 
       message = Services::Messages.instance.create(params['session_id'], campaign, params['content'])
-      halt 200, {message: 'created'}.to_json
+      halt 200, {message: 'created', item: Decorators::Message.new(message).to_h}.to_json
     end
 
     # Returns the parameters allowed to create or update a campaign.

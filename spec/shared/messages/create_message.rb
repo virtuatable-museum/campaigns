@@ -11,7 +11,13 @@ RSpec.shared_examples 'POST /:id/messages' do
           expect(last_response.status).to be 200
       end
       it 'Returns the correct body' do
-        expect(last_response.body).to include_json({message: 'created'})
+        expect(last_response.body).to include_json({
+          message: 'created',
+          item: {
+            username: account.username,
+            content: 'test'
+          }
+        })
       end
       describe 'campaign messages' do
         before do
