@@ -7,14 +7,15 @@ RSpec.shared_examples 'POST /:id/messages' do
       before do
         post '/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token, content: 'test'}
       end
-      it 'Returns a OK (200) status' do
-          expect(last_response.status).to be 200
+      it 'Returns a Created (201) status code' do
+        expect(last_response.status).to be 201
       end
       it 'Returns the correct body' do
         expect(last_response.body).to include_json({
           message: 'created',
           item: {
             username: account.username,
+            type: 'text',
             content: 'test'
           }
         })
@@ -28,6 +29,42 @@ RSpec.shared_examples 'POST /:id/messages' do
         end
         it 'has added the correct message to the campaign' do
           expect(campaign.messages.first.content).to eq 'test'
+        end
+      end
+    end
+
+    describe 'Alternative cases' do
+      before do
+        post '/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token, content: '/roll 2d10+5'}
+      end
+      it 'Returns a Created (201) status code' do
+        expect(last_response.status).to be 201
+      end
+      it 'Returns the correct body' do
+        expect(last_response.body).to include_json({
+          message: 'created',
+          item: {
+            username: account.username,
+            type: 'diceroll',
+            number_of_dices: 2,
+            number_of_faces: 10,
+            modifier: 5
+          }
+        })
+      end
+      describe 'campaign messages' do
+        let!(:message) {
+          campaign.reload
+          campaign.messages.first
+        }
+        it 'has the correct number of dices' do
+          expect(message.number_of_dices).to be 2
+        end
+        it 'has the correct number of faces' do
+          expect(message.number_of_faces).to be 10
+        end
+        it 'has the correct modifier' do
+          expect(message.modifier).to be 5
         end
       end
     end
