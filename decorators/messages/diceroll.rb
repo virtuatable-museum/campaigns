@@ -11,6 +11,7 @@ module Decorators
           number_of_dices: object.number_of_dices,
           number_of_faces: object.number_of_faces,
           modifier: object.modifier,
+          results: object.results,
           created_at: object.created_at.utc.iso8601
         }
       end

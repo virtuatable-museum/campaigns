@@ -52,6 +52,9 @@ RSpec.shared_examples 'POST /:id/messages' do
           }
         })
       end
+      it 'Returns the correct number of results in the body' do
+        expect(JSON.parse(last_response.body)['item']['results'].count).to be 2
+      end
       describe 'campaign messages' do
         let!(:message) {
           campaign.reload
@@ -65,6 +68,9 @@ RSpec.shared_examples 'POST /:id/messages' do
         end
         it 'has the correct modifier' do
           expect(message.modifier).to be 5
+        end
+        it 'has the correct number of results' do
+          expect(message.results.length).to be 2
         end
       end
     end
