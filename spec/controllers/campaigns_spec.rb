@@ -29,4 +29,6 @@ RSpec.describe Controllers::Campaigns do
   include_examples 'GET /:id/messages'
 
   include_examples 'POST /:id/messages'
+
+  include_examples 'POST /:id/commands'
 end

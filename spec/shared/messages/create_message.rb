@@ -16,61 +16,22 @@ RSpec.shared_examples 'POST /:id/messages' do
           item: {
             username: account.username,
             type: 'text',
-            content: 'test'
+            data: {
+              content: 'test'
+            }
           }
         })
       end
-      describe 'campaign messages' do
-        before do
-          campaign.reload
-        end
-        it 'has effectively added a message in the campaign' do
-          expect(campaign.messages.count).to be 1
-        end
-        it 'has added the correct message to the campaign' do
-          expect(campaign.messages.first.content).to eq 'test'
-        end
-      end
-    end
-
-    describe 'Alternative cases' do
-      before do
-        post '/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token, content: '/roll 2d10+5'}
-      end
-      it 'Returns a Created (201) status code' do
-        expect(last_response.status).to be 201
-      end
-      it 'Returns the correct body' do
-        expect(last_response.body).to include_json({
-          message: 'created',
-          item: {
-            username: account.username,
-            type: 'diceroll',
-            number_of_dices: 2,
-            number_of_faces: 10,
-            modifier: 5
-          }
-        })
-      end
-      it 'Returns the correct number of results in the body' do
-        expect(JSON.parse(last_response.body)['item']['results'].count).to be 2
-      end
-      describe 'campaign messages' do
+      describe 'created message' do
         let!(:message) {
           campaign.reload
           campaign.messages.first
         }
-        it 'has the correct number of dices' do
-          expect(message.number_of_dices).to be 2
+        it 'has the correct message type' do
+          expect(message.type).to eq :text
         end
-        it 'has the correct number of faces' do
-          expect(message.number_of_faces).to be 10
-        end
-        it 'has the correct modifier' do
-          expect(message.modifier).to be 5
-        end
-        it 'has the correct number of results' do
-          expect(message.results.length).to be 2
+        it 'has the correct content' do
+          expect(message.data[:content]).to eq 'test'
         end
       end
     end

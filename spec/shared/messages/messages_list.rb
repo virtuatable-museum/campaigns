@@ -4,7 +4,7 @@ RSpec.shared_examples 'GET /:id/messages' do
     let!(:another_account) { create(:another_account) }
     let!(:session) { create(:session, account: another_account) }
     let!(:chat_invitation) { create(:accepted_invitation, campaign: campaign, account: another_account) }
-    let!(:message) { create(:message, player: chat_invitation, campaign: campaign, content: 'test messages') }
+    let!(:message) { create(:message, player: chat_invitation, campaign: campaign) }
 
     describe 'Nominal case' do
       before do
@@ -19,7 +19,10 @@ RSpec.shared_examples 'GET /:id/messages' do
             id: message.id.to_s,
             username: another_account.username,
             created_at: message.created_at.utc.iso8601,
-            content: 'test messages'
+            type: 'text',
+            data: {
+              content: 'test messages'
+            }
           }
         ])
       end
