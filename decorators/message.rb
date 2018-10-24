@@ -5,7 +5,6 @@ module Decorators
     def to_h
       return {
         id: object.id.to_s,
-        type: 'text',
         username: object.player.account.username,
         type: object.type,
         created_at: object.created_at.utc.iso8601,
