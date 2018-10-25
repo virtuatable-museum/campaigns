@@ -48,7 +48,7 @@ module Decorators
 
     def to_h
       return {
-        id: _id.to_s,
+        id: object._id.to_s,
         title: object.title,
         description: object.description,
         is_private: object.is_private,
