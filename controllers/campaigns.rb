@@ -70,11 +70,11 @@ module Controllers
     declare_route 'post', '/:id/commands' do
       campaign = check_session_and_campaign(action: 'messages', strict: false)
       check_presence('command', route: 'messages')
-      custom_error 400, 'messages.content.empty' if params['content'].empty?
+      custom_error 400, 'messages.command.empty' if params['command'].nil? || params['command'].empty?
 
       begin
         message = Services::Commands.instance.create(params['session_id'], campaign, params['command'], params['content'])
-        halt 201, {message: 'created', item: message.to_h}.to_json
+        halt 201, {message: 'created', item: message}.to_json
       rescue Services::Exceptions::UnparsableCommand
         custom_error 400, 'commands.content.unparsable'
       rescue Services::Exceptions::UnknownCommand

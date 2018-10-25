@@ -56,6 +56,31 @@ RSpec.shared_examples 'POST /:id/commands' do
       end
     end
 
+    describe 'Alternative cases' do
+      describe 'when the content is not given' do
+        before do
+          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'easteregg'}
+        end
+        it 'Returns a Created (201) status' do
+          expect(last_response.status).to be 201
+        end
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json({item: 'easter egg to test'})
+        end
+      end
+      describe 'when the content is given as empty' do
+        before do
+          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'easteregg', content: ''}
+        end
+        it 'Returns a Created (201) status' do
+          expect(last_response.status).to be 201
+        end
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json({item: 'easter egg to test'})
+        end
+      end
+    end
+
     it_should_behave_like 'a route', 'post', '/campaign_id/commands'
 
     describe '400 errors' do

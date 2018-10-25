@@ -13,6 +13,8 @@ module Services
     def create(session_id, campaign, command, content)
 
       case command
+      when 'easteregg'
+        return 'easter egg to test'
       when 'roll'
         matches = content.match diceroll_regex
 
@@ -37,7 +39,7 @@ module Services
                 results: results
               }
             })
-          )
+          ).to_h
         end
       else
         raise Services::Exceptions::UnknownCommand.new
