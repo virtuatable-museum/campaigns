@@ -77,6 +77,8 @@ module Controllers
         halt 201, {message: 'created', item: message.to_h}.to_json
       rescue Services::Exceptions::UnparsableCommand
         custom_error 400, 'commands.content.unparsable'
+      rescue Services::Exceptions::UnknownCommand
+        custom_error 400, 'commands.command.unknown'
       end
     end
 

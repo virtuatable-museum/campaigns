@@ -1,4 +1,9 @@
 errors:
+  commands:
+    command:
+      unknown:
+    content:
+      unparsable:
   common:
     app_key:
       forbidden: 'https://github.com/jdr-tools/wiki/wiki/Common-errors#application-not-premium'

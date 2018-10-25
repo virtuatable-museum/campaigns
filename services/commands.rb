@@ -39,6 +39,8 @@ module Services
             })
           )
         end
+      else
+        raise Services::Exceptions::UnknownCommand.new
       end
     end
   end
