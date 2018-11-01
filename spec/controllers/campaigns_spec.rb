@@ -1,6 +1,6 @@
 RSpec.describe Controllers::Campaigns do
 
-  before do
+  before :each do
     DatabaseCleaner.clean
   end
 
@@ -31,4 +31,6 @@ RSpec.describe Controllers::Campaigns do
   include_examples 'POST /:id/messages'
 
   include_examples 'POST /:id/commands'
+
+  include_examples 'POST /:id/files'
 end

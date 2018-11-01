@@ -82,6 +82,14 @@ module Controllers
       end
     end
 
+    declare_route 'post', '/:id/files' do
+      _session = check_session('messages')
+      _campaign = get_campaign_for(_session, action: 'messages', strict: false)
+      check_presence 'filename', 'content', route: 'files_creation'
+      ::Services::Files.instance.create(_session, _campaign, params['filename'], params['content'])
+      halt 200, {filename: params['filename']}.to_json
+    end
+
     # Returns the parameters allowed to create or update a campaign.
     # @return [Hash] the parameters allowed in the dition or creation of a campaign.
     def campaign_params
