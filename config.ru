@@ -10,8 +10,10 @@ service = Arkaan::Utils::MicroService.instance
   .from_location(__FILE__)
   .in_standard_mode
 
-service.get_controllers.each do |controller_class|
-  run controller_class
-end
+use Controllers::Files
+use Controllers::Invitations
+use Controllers::Messages
+use Controllers::Campaigns
+run Controllers::Commands
 
 at_exit { Arkaan::Utils::MicroService.instance.deactivate! }
