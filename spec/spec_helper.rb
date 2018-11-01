@@ -4,6 +4,8 @@ ENV['APP_KEY'] = '5bbda7811d41c80b8bb19d54'
 require 'bundler'
 Bundler.require :test
 
+require './controllers/base.rb'
+
 require 'arkaan/specs'
 
 service = Arkaan::Utils::MicroService.instance

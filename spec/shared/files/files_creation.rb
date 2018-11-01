@@ -1,15 +1,18 @@
 RSpec.shared_examples 'POST /:id/files' do
-
   describe 'POST /:id/files' do
 
     let!(:campaign) { create(:campaign, creator: account, title: 'test_titre_files') }
     let!(:session) { create(:session, account: account) }
     let!(:attachment_name) { File.join(File.dirname(__FILE__), '..', '..', 'attachments', 'test.txt') }
     let!(:attachment) { Rack::Test::UploadedFile.new(attachment_name, "text/plain") }
+
+    def app
+      Controllers::Files.new
+    end
     
     describe 'Nominal case' do
       before do
-        post "/#{campaign.id.to_s}/files", {
+        post "/campaigns/#{campaign.id.to_s}/files", {
           session_id: session.token,
           app_key: 'test_key',
           token: 'test_token',
@@ -53,7 +56,7 @@ RSpec.shared_examples 'POST /:id/files' do
     describe '400 errors' do
       describe 'file content not given' do
         before do
-          post "/#{campaign.id.to_s}/files", {session_id: session.token, app_key: 'test_key', token: 'test_token', filename: 'file.txt'}
+          post "/campaigns/#{campaign.id.to_s}/files", {session_id: session.token, app_key: 'test_key', token: 'test_token', filename: 'file.txt'}
         end
         it 'Returns a Bad request (400) status code' do
           expect(last_response.status).to be 400
@@ -68,7 +71,7 @@ RSpec.shared_examples 'POST /:id/files' do
       end
       describe 'filename not given' do
         before do
-          post "/#{campaign.id.to_s}/files", {session_id: session.token, app_key: 'test_key', token: 'test_token', content: attachment}
+          post "/campaigns/#{campaign.id.to_s}/files", {session_id: session.token, app_key: 'test_key', token: 'test_token', content: attachment}
         end
         it 'Returns a Bad request (400) status code' do
           expect(last_response.status).to be 400

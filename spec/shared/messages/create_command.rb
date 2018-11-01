@@ -3,9 +3,13 @@ RSpec.shared_examples 'POST /:id/commands' do
     let!(:campaign) { create(:campaign, creator: account) }
     let!(:session) { create(:session, account: account) }
 
+    def app
+      Controllers::Commands.new
+    end
+
     describe 'Nominal cases' do
       before do
-        post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'roll', content: '2d10+5'}
+        post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'roll', content: '2d10+5'}
       end
       it 'Returns a Created (201) status code' do
         expect(last_response.status).to be 201
@@ -59,7 +63,7 @@ RSpec.shared_examples 'POST /:id/commands' do
     describe 'Alternative cases' do
       describe 'when the content is not given' do
         before do
-          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'easteregg'}
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'easteregg'}
         end
         it 'Returns a Created (201) status' do
           expect(last_response.status).to be 201
@@ -70,7 +74,7 @@ RSpec.shared_examples 'POST /:id/commands' do
       end
       describe 'when the content is given as empty' do
         before do
-          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'easteregg', content: ''}
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'easteregg', content: ''}
         end
         it 'Returns a Created (201) status' do
           expect(last_response.status).to be 201
@@ -81,12 +85,12 @@ RSpec.shared_examples 'POST /:id/commands' do
       end
     end
 
-    it_should_behave_like 'a route', 'post', '/campaign_id/commands'
+    it_should_behave_like 'a route', 'post', '/campaigns/campaign_id/commands'
 
     describe '400 errors' do
       describe 'command not given' do
         before do
-          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -101,7 +105,7 @@ RSpec.shared_examples 'POST /:id/commands' do
       end
       describe 'command given empty' do
         before do
-          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: ''}
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: ''}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -116,7 +120,7 @@ RSpec.shared_examples 'POST /:id/commands' do
       end
       describe 'unknown command' do
         before do
-          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'unknown', content: 'any'}
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'unknown', content: 'any'}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -131,7 +135,7 @@ RSpec.shared_examples 'POST /:id/commands' do
       end
       describe 'unparsable content' do
         before do
-          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'roll', content: 'error triger'}
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'roll', content: 'error triger'}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -146,7 +150,7 @@ RSpec.shared_examples 'POST /:id/commands' do
       end
       describe 'session ID not given' do
         before do
-          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key'}
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key'}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -167,7 +171,7 @@ RSpec.shared_examples 'POST /:id/commands' do
         let!(:session) { create(:session, account: another_account) }
 
         before do
-          post '/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'Returns a 403 error' do
           expect(last_response.status).to be 403

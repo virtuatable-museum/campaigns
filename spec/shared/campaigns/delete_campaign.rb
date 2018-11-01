@@ -7,7 +7,7 @@ RSpec.shared_examples 'DELETE /:id' do
 
     describe 'Nominal case' do
       before do
-        delete '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        delete '/campaigns/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'Returns a OK (200) when you successfully delete a campaign' do
         expect(last_response.status).to be 200
@@ -28,7 +28,7 @@ RSpec.shared_examples 'DELETE /:id' do
     describe '400 errors' do
       describe 'session ID not given' do
         before do
-          get '/own', {token: 'test_token', app_key: 'test_key'}
+          get '/campaigns/own', {token: 'test_token', app_key: 'test_key'}
         end
         it 'Raises a Bad Request (400) error' do
           expect(last_response.status).to be 400
@@ -49,7 +49,7 @@ RSpec.shared_examples 'DELETE /:id' do
         let!(:another_session) { create(:another_session, account: another_account) }
 
         before do
-          get '/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: another_session.token}
+          get '/campaigns/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: another_session.token}
         end
         it 'Returns a 403 error' do
           expect(last_response.status).to be 403
@@ -67,7 +67,7 @@ RSpec.shared_examples 'DELETE /:id' do
     describe '404 errors' do
       describe 'session ID not found' do
         before do
-          get '/own', {token: 'test_token', app_key: 'test_key', session_id: 'unknown_session_id'}
+          get '/campaigns/own', {token: 'test_token', app_key: 'test_key', session_id: 'unknown_session_id'}
         end
         it 'Raises a Not Found (404)) error' do
           expect(last_response.status).to be 404
@@ -86,7 +86,7 @@ RSpec.shared_examples 'DELETE /:id' do
         let!(:another_session) { create(:another_session, account: another_account) }
 
         before do
-          delete '/any_other_id', {token: 'test_token', app_key: 'test_key', session_id: another_session.token}
+          delete '/campaigns/any_other_id', {token: 'test_token', app_key: 'test_key', session_id: another_session.token}
         end
         it 'correctly returns a Not Found (404) error when the campaign you try to delete does not exist' do
           expect(last_response.status).to be 404

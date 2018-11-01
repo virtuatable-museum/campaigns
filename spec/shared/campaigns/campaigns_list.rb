@@ -12,7 +12,7 @@ RSpec.shared_examples 'GET /' do
 
     describe 'Campaign without invitation' do
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -43,7 +43,7 @@ RSpec.shared_examples 'GET /' do
       let!(:invitation) { create(:pending_invitation, campaign: 'other_campaign_id', account: account) }
 
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -78,7 +78,7 @@ RSpec.shared_examples 'GET /' do
       let!(:invitation) { create(:request_invitation, campaign: 'other_campaign_id', account: account) }
       
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -113,7 +113,7 @@ RSpec.shared_examples 'GET /' do
       let!(:invitation) { create(:accepted_invitation, campaign: 'other_campaign_id', account: account) }
       
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -148,7 +148,7 @@ RSpec.shared_examples 'GET /' do
       let!(:invitation) { create(:left_invitation, campaign: 'other_campaign_id', account: account) }
       
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -179,7 +179,7 @@ RSpec.shared_examples 'GET /' do
       let!(:invitation) { create(:expelled_invitation, campaign: 'other_campaign_id', account: account) }
       
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -210,7 +210,7 @@ RSpec.shared_examples 'GET /' do
       let!(:invitation) { create(:refused_invitation, campaign: 'other_campaign_id', account: account) }
       
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -237,11 +237,12 @@ RSpec.shared_examples 'GET /' do
         })
       end
     end
+    
     describe 'Campaign with blocked invitation' do
       let!(:invitation) { create(:blocked_invitation, campaign: 'other_campaign_id', account: account) }
       
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -250,11 +251,12 @@ RSpec.shared_examples 'GET /' do
         expect(JSON.parse(last_response.body)).to eq({'count' => 0, 'items' => []})
       end
     end
+
     describe 'Campaign with ignored invitation' do
       let!(:invitation) { create(:ignored_invitation, campaign: 'other_campaign_id', account: account) }
       
       before do
-        get '/', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get '/campaigns', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'correctly returns a OK (200) status' do
         expect(last_response.status).to be 200
@@ -286,6 +288,6 @@ RSpec.shared_examples 'GET /' do
       end
     end
 
-    it_should_behave_like 'a route', 'get', '/'
+    it_should_behave_like 'a route', 'get', '/campaigns'
   end
 end

@@ -3,9 +3,13 @@ RSpec.shared_examples 'POST /:id/messages' do
     let!(:campaign) { create(:campaign, creator: account) }
     let!(:session) { create(:session, account: account) }
 
+    def app
+      Controllers::Messages.new
+    end
+
     describe 'Nominal case' do
       before do
-        post '/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token, content: 'test'}
+        post '/campaigns/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token, content: 'test'}
       end
       it 'Returns a Created (201) status code' do
         expect(last_response.status).to be 201
@@ -41,7 +45,7 @@ RSpec.shared_examples 'POST /:id/messages' do
     describe '400 errors' do
       describe 'message not given' do
         before do
-          post '/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+          post '/campaigns/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -56,7 +60,7 @@ RSpec.shared_examples 'POST /:id/messages' do
       end
       describe 'message given empty' do
         before do
-          post '/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token, content: ''}
+          post '/campaigns/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token, content: ''}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -71,7 +75,7 @@ RSpec.shared_examples 'POST /:id/messages' do
       end
       describe 'session ID not given' do
         before do
-          post '/campaign_id/messages', {token: 'test_token', app_key: 'test_key'}
+          post '/campaigns/campaign_id/messages', {token: 'test_token', app_key: 'test_key'}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -92,7 +96,7 @@ RSpec.shared_examples 'POST /:id/messages' do
         let!(:session) { create(:session, account: another_account) }
 
         before do
-          post '/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+          post '/campaigns/campaign_id/messages', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'Returns a 403 error' do
           expect(last_response.status).to be 403

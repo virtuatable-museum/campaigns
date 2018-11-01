@@ -6,9 +6,13 @@ RSpec.shared_examples 'GET /:id/messages' do
     let!(:chat_invitation) { create(:accepted_invitation, campaign: campaign, account: another_account) }
     let!(:message) { create(:message, player: chat_invitation, campaign: campaign) }
 
+    def app
+      Controllers::Messages.new
+    end
+
     describe 'Nominal case' do
       before do
-        get "/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get "/campaigns/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'Returns a OK (200) status code' do
         expect(last_response.status).to be 200
@@ -33,7 +37,7 @@ RSpec.shared_examples 'GET /:id/messages' do
     describe '400 errors' do
       describe 'session ID not given' do
         before do
-          get '/campaign_id/messages', {token: 'test_token', app_key: 'test_key'}
+          get '/campaigns/campaign_id/messages', {token: 'test_token', app_key: 'test_key'}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -54,7 +58,7 @@ RSpec.shared_examples 'GET /:id/messages' do
         let!(:other_session) { create(:session, account: third_account, token: 'truite violette') }
 
         before do
-          get "/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: other_session.token}
+          get "/campaigns/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: other_session.token}
         end
         it 'Returns a 403 error' do
           expect(last_response.status).to be 403

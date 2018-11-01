@@ -9,9 +9,13 @@ RSpec.shared_examples 'GET /:id/invitations' do
     let!(:accepted_invitation) { create(:invitation, account: other_account, campaign: campaign, status: :accepted) }
     let!(:session) { create(:session, account: account) }
 
+    def app
+      Controllers::Invitations.new
+    end
+
     describe 'Nominal case' do
       before do
-        get "/#{campaign.id.to_s}/invitations", {token: 'test_token', app_key: 'test_key', session_id: session.token}
+        get "/campaigns/#{campaign.id.to_s}/invitations", {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'Returns a OK (200) status code when correctly returning the invitations' do
         expect(last_response.status).to be 200
@@ -37,12 +41,12 @@ RSpec.shared_examples 'GET /:id/invitations' do
       end
     end
 
-    it_should_behave_like 'a route', 'get', '/campaign_id/invitations'
+    it_should_behave_like 'a route', 'get', '/campaigns/campaign_id/invitations'
 
     describe '400 errors' do
       describe 'session ID not given' do
         before do
-          get '/campaign_id/invitations', {token: 'test_token', app_key: 'test_key'}
+          get '/campaigns/campaign_id/invitations', {token: 'test_token', app_key: 'test_key'}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
@@ -63,7 +67,7 @@ RSpec.shared_examples 'GET /:id/invitations' do
         let!(:session) { create(:session, account: another_account) }
 
         before do
-          get '/campaign_id/invitations', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+          get '/campaigns/campaign_id/invitations', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'Returns a 403 error' do
           expect(last_response.status).to be 403
@@ -81,7 +85,7 @@ RSpec.shared_examples 'GET /:id/invitations' do
     describe 'Not Found Errors' do
       describe 'Campaign not found error' do
         before do
-          get '/fake_campaign_id/invitations', {token: 'test_token', app_key: 'test_key', session_id: session.token}
+          get '/campaigns/fake_campaign_id/invitations', {token: 'test_token', app_key: 'test_key', session_id: session.token}
         end
         it 'correctly returns a Not Found (404) error when the campaign you want to get does not exist' do
           expect(last_response.status).to be 404
@@ -99,7 +103,7 @@ RSpec.shared_examples 'GET /:id/invitations' do
         let!(:session) { create(:session, account: account) }
         
         before do
-          get '/campaign_id/invitations', {token: 'test_token', app_key: 'test_key', session_id: 'fake_token'}
+          get '/campaigns/campaign_id/invitations', {token: 'test_token', app_key: 'test_key', session_id: 'fake_token'}
         end
         it 'Returns a Not Found (404) status' do
           expect(last_response.status).to be 404
