@@ -24,6 +24,16 @@ module Services
       end
     end
 
+    def list(campaign)
+      files = []
+      campaign.invitations.each do |invitation|
+        invitation.files.each do |file|
+          files << Decorators::File.new(file).to_h
+        end
+      end
+      return files
+    end
+
     def load_buckets_config
       YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'buckets.yml'))
     end

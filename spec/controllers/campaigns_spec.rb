@@ -41,7 +41,4 @@ RSpec.describe Controllers::Campaigns do
 
   # rspec spec/controllers/campaigns_spec.rb[1:10]
   include_examples 'POST /:id/commands'
-
-  # rspec spec/controllers/campaigns_spec.rb[1:11]
-  include_examples 'POST /:id/files'
 end

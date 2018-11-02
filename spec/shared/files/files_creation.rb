@@ -1,14 +1,8 @@
 RSpec.shared_examples 'POST /:id/files' do
   describe 'POST /:id/files' do
 
-    let!(:campaign) { create(:campaign, creator: account, title: 'test_titre_files') }
-    let!(:session) { create(:session, account: account) }
     let!(:attachment_name) { File.join(File.dirname(__FILE__), '..', '..', 'attachments', 'test.txt') }
     let!(:attachment) { Rack::Test::UploadedFile.new(attachment_name, "text/plain") }
-
-    def app
-      Controllers::Files.new
-    end
     
     describe 'Nominal case' do
       before do
@@ -81,6 +75,34 @@ RSpec.shared_examples 'POST /:id/files' do
             status: 400,
             field: 'filename',
             error: 'required'
+          })
+        end
+      end
+    end
+
+    describe '403 errors' do
+      describe 'user not creator' do
+        let!(:other_account) { create(:account, username: 'Babaussine', email: 'test@other.com') }
+        let!(:invitation) { create(:accepted_invitation, campaign: campaign, account: other_account) }
+        let!(:other_session) { create(:session, token: 'any_other_token', account: other_account) }
+
+        before do
+          post "/campaigns/#{campaign.id.to_s}/files", {
+            session_id: other_session.token,
+            app_key: 'test_key',
+            token: 'test_token',
+            filename: 'test.txt',
+            content: attachment
+          }
+        end
+        it 'Returns a Forbidden (403) status code' do
+          expect(last_response.status).to be 403
+        end
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json({
+            status: 403,
+            field: 'session_id',
+            error: 'forbidden'
           })
         end
       end
