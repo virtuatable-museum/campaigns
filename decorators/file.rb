@@ -6,7 +6,9 @@ module Decorators
       account = object.invitation.account
       return {
         id: object.id.to_s,
-        filename: object.filename,
+        name: object.name,
+        size: object.size,
+        type: object.mime_type,
         account: {
           id: account._id.to_s,
           username: account.username

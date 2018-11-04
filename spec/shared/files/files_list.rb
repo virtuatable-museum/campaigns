@@ -1,7 +1,14 @@
 RSpec.shared_examples 'GET /:id/files' do
   describe 'GET /:id/files' do
     
-    let!(:file) { create(:file, filename: 'test.txt', invitation: campaign.invitations.first) }
+    let!(:file) {
+      create(:file, {
+        invitation: campaign.invitations.first,
+        name: 'test.txt',
+        mime_type: 'text/plain',
+        size: 19
+      })
+    }
     
     describe 'Nominal case' do
       before do
@@ -14,7 +21,9 @@ RSpec.shared_examples 'GET /:id/files' do
         expect(last_response.body).to include_json([
           {
             id: file.id.to_s,
-            filename: 'test.txt',
+            name: 'test.txt',
+            type: 'text/plain',
+            size: 19,
             account: {
               id: account.id.to_s,
               username: account.username

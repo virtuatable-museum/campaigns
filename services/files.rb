@@ -13,14 +13,20 @@ module Services
       @buckets_config = load_buckets_config
     end
 
-    def create(session, campaign, filename, content)
+    def create(session, campaign, parameters)
       create_bucket_if_not_exist('campaigns')
       invitation = campaign.invitations.where(account: session.account).first
       if !invitation.nil?
-        file = Arkaan::Campaigns::File.create(filename: filename, invitation: invitation)
+        file = Arkaan::Campaigns::File.create(
+          name: parameters['name'],
+          size: parameters['size'],
+          mime_type: parameters['type'],
+          invitation: invitation
+        )
         if file.valid? && file.persisted?
-          insert_in_bucket('campaigns', filename, content)
+          insert_campaign_file(campaign, parameters)
         end
+        return file
       end
     end
 
@@ -42,6 +48,10 @@ module Services
       aws_client.get_object(bucket: bucket_name(bucket), key: filename).body.read.to_s
     end
 
+    def get_campaign_file(campaign, filename)
+      aws_client.get_object(bucket: bucket_name('campaigns'), key: filename).body.read.to_s
+    end
+
     def create_bucket_if_not_exist(name)
       begin
         aws_client.head_bucket(bucket: bucket_name(name))
@@ -54,11 +64,12 @@ module Services
       return buckets_config[name][ENV['RACK_ENV']]
     end
 
-    def insert_in_bucket(name, filename, content)
+    def insert_campaign_file(campaign, parameters)
+      content = parameters['content'].split(',', 2).last
       aws_client.put_object({
-        bucket: bucket_name(name),
-        key: filename,
-        body: content['tempfile'].read.to_s
+        bucket: bucket_name('campaigns'),
+        key: parameters['name'],
+        body: Base64.decode64(content)
       })
     end
   end
