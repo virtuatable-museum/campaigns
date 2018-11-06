@@ -9,10 +9,8 @@ RSpec.shared_examples 'POST /:id/files' do
           session_id: session.token,
           app_key: 'test_key',
           token: 'test_token',
-          size: 19,
           name: 'test.txt',
-          content: base_64_content,
-          type: 'text/plain'
+          content: base_64_content
         }
       end
       it 'Returns a OK (200) status code' do
@@ -21,7 +19,7 @@ RSpec.shared_examples 'POST /:id/files' do
       it 'returns the correct body' do
         expect(last_response.body).to include_json({
           name: 'test.txt',
-          size: 19,
+          size: 30,
           type: 'text/plain'
         })
       end
@@ -39,7 +37,7 @@ RSpec.shared_examples 'POST /:id/files' do
           expect(created_file.name).to eq 'test.txt'
         end
         it 'has created a file with the correct size' do
-          expect(created_file.size).to eq 19
+          expect(created_file.size).to eq 30
         end
         it 'has created a file with the correct MIME type' do
           expect(created_file.mime_type).to eq 'text/plain'
@@ -64,9 +62,7 @@ RSpec.shared_examples 'POST /:id/files' do
           session_id: session.token,
           app_key: 'test_key',
           token: 'test_token',
-          size: 19,
-          name: 'test.txt',
-          type: 'text/plain'
+          name: 'test.txt'
         }
         end
         it 'Returns a Bad request (400) status code' do
@@ -86,9 +82,8 @@ RSpec.shared_examples 'POST /:id/files' do
           session_id: session.token,
           app_key: 'test_key',
           token: 'test_token',
-          size: 19,
-          content: base_64_content,
-          type: 'text/plain'
+          size: 30,
+          content: base_64_content
         }
         end
         it 'Returns a Bad request (400) status code' do
@@ -98,28 +93,6 @@ RSpec.shared_examples 'POST /:id/files' do
           expect(last_response.body).to include_json({
             status: 400,
             field: 'name',
-            error: 'required'
-          })
-        end
-      end
-      describe 'filename not given' do
-        before do
-          post "/campaigns/#{campaign.id.to_s}/files", {
-          session_id: session.token,
-          app_key: 'test_key',
-          token: 'test_token',
-          name: 'test.txt',
-          size: 19,
-          content: base_64_content,
-        }
-        end
-        it 'Returns a Bad request (400) status code' do
-          expect(last_response.status).to be 400
-        end
-        it 'Returns the correct body' do
-          expect(last_response.body).to include_json({
-            status: 400,
-            field: 'type',
             error: 'required'
           })
         end
@@ -137,10 +110,8 @@ RSpec.shared_examples 'POST /:id/files' do
           session_id: other_session.token,
           app_key: 'test_key',
           token: 'test_token',
-          size: 19,
           name: 'test.txt',
-          content: base_64_content,
-          type: 'text/plain'
+          content: base_64_content
         }
         end
         it 'Returns a Forbidden (403) status code' do

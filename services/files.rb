@@ -16,15 +16,20 @@ module Services
     def create(session, campaign, parameters)
       create_bucket_if_not_exist('campaigns')
       invitation = campaign.invitations.where(account: session.account).first
+      mime_type = parse_mime_type(parameters['content'])
       if !invitation.nil?
         file = Arkaan::Campaigns::File.create(
           name: parameters['name'],
-          size: parameters['size'],
-          mime_type: parameters['type'],
+          mime_type: mime_type,
           invitation: invitation
         )
         if file.valid? && file.persisted?
           insert_campaign_file(campaign, parameters)
+          object = aws_client.get_object({
+            bucket: bucket_name('campaigns'),
+            key: "#{campaign.id.to_s}/#{parameters['name']}"
+          })
+          file.update_attribute(:size, object.to_h[:content_length])
         end
         return file
       end
@@ -68,9 +73,13 @@ module Services
       content = parameters['content'].split(',', 2).last
       aws_client.put_object({
         bucket: bucket_name('campaigns'),
-        key: parameters['name'],
+        key: "#{campaign.id.to_s}/#{parameters['name']}",
         body: Base64.decode64(content)
       })
+    end
+
+    def parse_mime_type(content)
+      return content.split(';', 2).first.split(':', 2).last
     end
   end
 end

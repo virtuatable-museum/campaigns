@@ -11,7 +11,7 @@ module Controllers
     declare_route 'post', '/:id/files' do
       _session = check_session('messages')
       _campaign = get_campaign_for(_session, action: 'messages', strict: false)
-      check_presence 'name', 'content', 'type', route: 'files_creation'
+      check_presence 'name', 'content', route: 'files_creation'
       if !is_creator_session?(_session, _campaign)
         custom_error 403, 'files_creation.session_id.forbidden'
       end
