@@ -14,25 +14,23 @@ module Services
     end
 
     def create(session, campaign, parameters)
-      create_bucket_if_not_exist('campaigns')
       invitation = campaign.invitations.where(account: session.account).first
       mime_type = parse_mime_type(parameters['content'])
-      if !invitation.nil?
-        file = Arkaan::Campaigns::File.create(
-          name: parameters['name'],
-          mime_type: mime_type,
-          invitation: invitation
-        )
-        if file.valid? && file.persisted?
-          insert_campaign_file(campaign, parameters)
-          object = aws_client.get_object({
-            bucket: bucket_name('campaigns'),
-            key: "#{campaign.id.to_s}/#{parameters['name']}"
-          })
-          file.update_attribute(:size, object.to_h[:content_length])
-        end
-        return file
-      end
+      return Arkaan::Campaigns::File.new(
+        name: parameters['name'],
+        mime_type: mime_type,
+        invitation: invitation
+      )
+    end
+
+    def store(campaign, file, parameters)
+      create_bucket_if_not_exist('campaigns')
+      insert_campaign_file(campaign, parameters)
+      object = aws_client.get_object({
+        bucket: bucket_name('campaigns'),
+        key: "#{campaign.id.to_s}/#{parameters['name']}"
+      })
+      file.update_attribute(:size, object.to_h[:content_length])
     end
 
     def list(campaign)
@@ -53,8 +51,23 @@ module Services
       aws_client.get_object(bucket: bucket_name(bucket), key: filename).body.read.to_s
     end
 
+    def empty_bucket(name)
+      objects = aws_client.list_objects(bucket: bucket_name(name))[:contents]
+      objects.each do |object|
+        aws_client.delete_object(bucket: bucket_name(name), key: object[:key])
+      end
+      aws_client.delete_bucket(bucket: bucket_name(name))
+    end
+
+    def campaign_file_exists?(campaign, filename)
+      Aws::S3::Client.new.get_object(bucket: 'jdr-tools-campaigns', key: "#{campaign.id.to_s}/#{filename}")
+      return true
+    rescue StandardError => exception
+      return false
+    end
+
     def get_campaign_file(campaign, filename)
-      aws_client.get_object(bucket: bucket_name('campaigns'), key: filename).body.read.to_s
+      aws_client.get_object(bucket: bucket_name('campaigns'), key: "#{campaign.id.to_s}/#{filename}").body.read.to_s
     end
 
     def create_bucket_if_not_exist(name)

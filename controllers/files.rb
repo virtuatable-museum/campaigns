@@ -9,18 +9,21 @@ module Controllers
     end
 
     declare_route 'post', '/:id/files' do
-      _session = check_session('messages')
-      _campaign = get_campaign_for(_session, action: 'messages', strict: false)
       check_presence 'name', 'content', route: 'files_creation'
-      if !is_creator_session?(_session, _campaign)
-        custom_error 403, 'files_creation.session_id.forbidden'
-      end
-      file = ::Services::Files.instance.create(_session, _campaign, params)
-      halt 200, Decorators::File.new(file).to_h.to_json
-    end
+      _session = check_session('messages')
+      _campaign = get_campaign_for(_session, 'messages', strict: true)
 
-    def is_creator_session?(session, campaign)
-      return campaign.invitations.where(account: session.account).first.status_creator?
+      file = ::Services::Files.instance.create(_session, _campaign, params)
+
+      if file.save
+        if ::Services::Files.instance.store(_campaign, file, params)
+          halt 200, Decorators::File.new(file).to_h.to_json
+        else
+          custom_error 400, 'files_creation.upload.failed'
+        end
+      else
+        model_error file, 'files_creation'
+      end
     end
   end
 end
