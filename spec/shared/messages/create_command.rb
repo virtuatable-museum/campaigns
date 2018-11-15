@@ -23,16 +23,22 @@ RSpec.shared_examples 'POST /:id/commands' do
           }
         })
       end
-      it 'has the correct data' do
-        expect(JSON.parse(last_response.body)['item']['data']).to include_json(
-          command: 'roll',
-          number_of_dices: 2,
-          number_of_faces: 10,
-          modifier: 5
-        )
-      end
-      it 'Returns the correct number of results in the body' do
-        expect(JSON.parse(last_response.body)['item']['data']['results'].count).to be 2
+      describe 'Results data' do
+        let!(:data) { JSON.parse(last_response.body)['item']['data'] }
+
+        it 'has the correct data' do
+          expect(data).to include_json({
+            command: 'roll',
+            rolls: [{
+              number_of_dices: 2,
+              number_of_faces: 10,
+            }],
+            modifier: 5
+          })
+        end
+        it 'Returns the correct number of results in the body' do
+          expect(data['rolls'][0]['results'].count).to be 2
+        end
       end
       describe 'created message' do
         let!(:message) {
@@ -46,22 +52,83 @@ RSpec.shared_examples 'POST /:id/commands' do
           expect(message.data[:command]).to eq 'roll'
         end
         it 'has the correct number of dices' do
-          expect(message.data[:number_of_dices]).to be 2
+          expect(message.data[:rolls][0][:number_of_dices]).to be 2
         end
         it 'has the correct number of faces' do
-          expect(message.data[:number_of_faces]).to be 10
+          expect(message.data[:rolls][0][:number_of_faces]).to be 10
         end
         it 'has the correct modifier' do
           expect(message.data[:modifier]).to be 5
         end
         it 'has the correct number of results' do
-          expect(message.data[:results].length).to be 2
+          expect(message.data[:rolls][0][:results].length).to be 2
         end
       end
     end
 
     describe 'Alternative cases' do
-      describe 'when the content is not given' do
+      describe 'when there are several rolls' do
+        before do
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'roll', content: '2d10+3d6+10'}
+        end
+        it 'Returns a Created (201) status code' do
+          expect(last_response.status).to be 201
+        end
+        describe 'Results data' do
+          let!(:data) { JSON.parse(last_response.body)['item']['data'] }
+
+          it 'has the correct data' do
+            expect(data).to include_json({
+              command: 'roll',
+              rolls: [
+                {
+                  number_of_dices: 2,
+                  number_of_faces: 10,
+                },
+                {
+                  number_of_dices: 3,
+                  number_of_faces: 6,
+                }
+              ],
+              modifier: 10
+            })
+          end
+          it 'Returns the correct number of results for the first roll' do
+            expect(data['rolls'][0]['results'].count).to be 2
+          end
+          it 'Returns the correct number of results for the second roll' do
+            expect(data['rolls'][1]['results'].count).to be 3
+          end
+        end
+      end
+      describe 'when there are several modifiers' do
+        before do
+          post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'roll', content: '2d10+5+5'}
+        end
+        it 'Returns a Created (201) status code' do
+          expect(last_response.status).to be 201
+        end
+        describe 'Results data' do
+          let!(:data) { JSON.parse(last_response.body)['item']['data'] }
+
+          it 'has the correct data' do
+            expect(data).to include_json({
+              command: 'roll',
+              rolls: [
+                {
+                  number_of_dices: 2,
+                  number_of_faces: 10,
+                }
+              ],
+              modifier: 10
+            })
+          end
+          it 'Returns the correct number of results in the body' do
+            expect(data['rolls'][0]['results'].count).to be 2
+          end
+        end
+      end
+      describe 'when the content is not given and not required' do
         before do
           post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'easteregg'}
         end
@@ -72,7 +139,7 @@ RSpec.shared_examples 'POST /:id/commands' do
           expect(last_response.body).to include_json({item: 'easter egg to test'})
         end
       end
-      describe 'when the content is given as empty' do
+      describe 'when the content is given as empty and not required' do
         before do
           post '/campaigns/campaign_id/commands', {token: 'test_token', app_key: 'test_key', session_id: session.token, command: 'easteregg', content: ''}
         end
