@@ -66,6 +66,21 @@ module Services
       return false
     end
 
+    def campaign_has_file?(campaign, file_id)
+      campaign.invitations.each do |invitation|
+        file = invitation.files.where(id: file_id).first
+        return true if !file.nil?
+      end
+      return false
+    end
+
+    def delete_campaign_file(campaign, file_id)
+      campaign.invitations.each do |invitation|
+        file = invitation.files.where(id: file_id).first
+        file.delete if !file.nil?
+      end
+    end
+
     def get_campaign_file(campaign, filename)
       aws_client.get_object(bucket: bucket_name('campaigns'), key: "#{campaign.id.to_s}/#{filename}").body.read.to_s
     end

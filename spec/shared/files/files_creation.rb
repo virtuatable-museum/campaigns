@@ -151,12 +151,12 @@ RSpec.shared_examples 'POST /:id/files' do
 
           before do
             post "/campaigns/#{campaign.id.to_s}/files", {
-            session_id: other_session.token,
-            app_key: 'test_key',
-            token: 'test_token',
-            name: 'test.txt',
-            content: base_64_content
-          }
+              session_id: other_session.token,
+              app_key: 'test_key',
+              token: 'test_token',
+              name: 'test.txt',
+              content: base_64_content
+            }
           end
           it 'Returns a Forbidden (403) status code' do
             expect(last_response.status).to be 403

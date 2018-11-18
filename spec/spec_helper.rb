@@ -1,3 +1,8 @@
+env_location = File.join(File.dirname(__FILE__), '..', '.env')
+puts env_location
+
+system "source #{env_location}"
+
 ENV['RACK_ENV'] = 'test'
 ENV['APP_KEY'] = '5bbda7811d41c80b8bb19d54'
 

@@ -2,16 +2,16 @@ module Controllers
   class Files < Controllers::Base
 
     declare_route 'get', '/:id/files' do
-      _session = check_session('messages')
-      _campaign = get_campaign_for(_session, action: 'messages', strict: false)
+      _session = check_session('files_list')
+      _campaign = get_campaign_for(_session, 'files_list', strict: false)
       files = ::Services::Files.instance.list(_campaign)
       halt 200, files.to_json
     end
 
     declare_route 'post', '/:id/files' do
       check_presence 'name', 'content', route: 'files_creation'
-      _session = check_session('messages')
-      _campaign = get_campaign_for(_session, 'messages', strict: true)
+      _session = check_session('files_creation')
+      _campaign = get_campaign_for(_session, 'files_creation', strict: true)
 
       file = ::Services::Files.instance.create(_session, _campaign, params)
 
@@ -23,6 +23,18 @@ module Controllers
         end
       else
         model_error file, 'files_creation'
+      end
+    end
+
+    declare_route 'delete', '/:id/files/:file_id' do
+      _session = check_session('files_deletion')
+      _campaign = get_campaign_for(_session, 'files_deletion', strict: true)
+
+      if ::Services::Files.instance.campaign_has_file?(_campaign, params['file_id'])
+        ::Services::Files.instance.delete_campaign_file(_campaign, params['file_id'])
+        halt 200, {message: 'deleted'}.to_json
+      else
+        custom_error 404, 'files_deletion.file_id.unknown'
       end
     end
   end
