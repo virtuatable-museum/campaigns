@@ -13,8 +13,8 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
           name: 'test.txt',
           content: base_64_content
         }
-        file_id = JSON.parse(last_response.body)['id']
-        delete "/campaigns/#{campaign.id.to_s}/files/#{file_id}", {
+        @file_id = JSON.parse(last_response.body)['id']
+        delete "/campaigns/#{campaign.id.to_s}/files/#{@file_id}", {
           session_id: session.token,
           app_key: 'test_key',
           token: 'test_token'
@@ -31,7 +31,7 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
         expect(campaign.invitations.first.files.count).to be 0
       end
       it 'Has deleted the file on AWS' do
-        expect(::Services::Files.instance.campaign_file_exists?(campaign, 'test.txt')).to be false
+        expect(::Services::Files.instance.campaign_file_exists?(campaign, @file_id)).to be false
       end
     end
 

@@ -52,10 +52,11 @@ RSpec.shared_examples 'POST /:id/files' do
       end
 
       describe 'AWS created file' do
-        let(:content) { file_service.get_campaign_file(campaign, 'test.txt') }
+        let!(:file_id) { JSON.parse(last_response.body)['id'] }
+        let(:content) { file_service.get_campaign_file(campaign, file_id) }
 
         it 'has the correct content' do
-          expect(content).to eq "test\nsaut de ligne et espaces\n"
+          expect(content).to eq base_64_content
         end
       end
     end

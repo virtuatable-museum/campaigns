@@ -47,8 +47,16 @@ module Services
       YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'buckets.yml'))
     end
 
-    def get_file_content(bucket, filename)
-      aws_client.get_object(bucket: bucket_name(bucket), key: filename).body.read.to_s
+    def get_campaign_file(campaign, file_id)
+      campaign.invitations.each do |invitation|
+        invitation.reload
+        file = invitation.files.where(id: file_id).first
+        if !file.nil?
+          key = "#{campaign.id.to_s}/#{file.name}"
+          raw_content = aws_client.get_object(bucket: bucket_name('campaigns'), key: key).body.read.to_s
+          return "data:#{file.mime_type};base64,#{Base64.encode64(raw_content)}".strip
+        end
+      end
     end
 
     def empty_bucket(name)
@@ -60,7 +68,7 @@ module Services
     end
 
     def campaign_file_exists?(campaign, filename)
-      Aws::S3::Client.new.get_object(bucket: 'jdr-tools-campaigns', key: "#{campaign.id.to_s}/#{filename}")
+      Aws::S3::Client.new.get_object(bucket: bucket_name('campaigns'), key: "#{campaign.id.to_s}/#{filename}")
       return true
     rescue StandardError => exception
       return false
@@ -79,10 +87,6 @@ module Services
         file = invitation.files.where(id: file_id).first
         file.delete if !file.nil?
       end
-    end
-
-    def get_campaign_file(campaign, filename)
-      aws_client.get_object(bucket: bucket_name('campaigns'), key: "#{campaign.id.to_s}/#{filename}").body.read.to_s
     end
 
     def create_bucket_if_not_exist(name)

@@ -1,6 +1,17 @@
 module Controllers
   class Files < Controllers::Base
 
+    declare_route 'get', '/:id/files/:file_id' do
+      _session = check_session('files_get')
+      _campaign = get_campaign_for(_session, 'files_get', strict: false)
+
+      if ::Services::Files.instance.campaign_has_file?(_campaign, params['file_id'])
+        ::Services::Files.instance.get_campaign_file(_campaign, params['file_id'])
+      else
+        custom_error 404, 'files_get.file_id.unknown'
+      end
+    end
+
     declare_route 'get', '/:id/files' do
       _session = check_session('files_list')
       _campaign = get_campaign_for(_session, 'files_list', strict: false)
