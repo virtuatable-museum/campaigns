@@ -4,45 +4,49 @@ module Services
   class Files
     include Singleton
 
-    attr_reader :aws_client
-
+    # @!attribute [r] bucket
+    #   @return [Services::Bucket] the service to make direct actions on the campaigns bucket.
     attr_reader :bucket
 
     def initialize
-      @aws_client = Aws::S3::Client.new
       @bucket = ::Services::Bucket.instance
     end
 
+    # Creates the file in the database, without storing in on Amazon.
+    # @param session [Arkaan::Authentication::Session] the session of the account creating the file.
+    # @param campaign [Arkaan::campaign] the campaign the file will be created in.
+    # @param parameters [Hash] the additionnal parameters, with the :name and :content keys, for the file.
     def create(session, campaign, parameters)
       invitation = campaign.invitations.where(account: session.account).first
-      mime_type = parse_mime_type(parameters['content'])
       return Arkaan::Campaigns::File.new(
         name: parameters['name'],
-        mime_type: mime_type,
+        mime_type: parse_mime_type(parameters['content']),
         invitation: invitation
       )
     end
 
-    def store(file, params)
-      bucket.store(file.invitation.campaign, params['name'], params['content'])
+    # Stores a file, already persisted in the database, on amazon S3.
+    # @param file [Arkaan::Campaigns::File] the file with the informations to store on AWS.
+    # @param content [String] the text representation of the content of the file.
+    def store(file, content)
+      bucket.store(file.invitation.campaign, file.name, content)
       size = bucket.file_size(file.invitation.campaign, file.name)
       file.update_attribute(:size, size)
     end
 
+    # List the files for a campaign by aggregating the files of the different invitations.
+    # @param campaign [Arkaan::Campaign] the campaign to obtain the files from.
+    # @return [Array<Hash>] a list of decorated files represented as hashes.
     def list(campaign)
-      files = []
-      campaign.invitations.each do |invitation|
-        invitation.files.each do |file|
-          files << Decorators::File.new(file).to_h
-        end
+      campaign.invitations.to_a.inject([]) do |buffer, invitation|
+        buffer += Decorators::File.decorate_collection(invitation.files.to_a).map(&:to_h)
       end
-      return files
     end
 
-    def load_buckets_config
-      YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'buckets.yml'))
-    end
-
+    # Returns the text representation of the file identified by this ID.
+    # @param campaign [Arkaan::Campaign] the campaign the file is in.
+    # @param file_id [String] the unique identifier of the file.
+    # @return [String, NilClass] the string representation of the file, or nil if the file does not exist in the database.
     def get_campaign_file(campaign, file_id)
       campaign.invitations.each do |invitation|
         invitation.reload
@@ -54,10 +58,9 @@ module Services
       end
     end
 
-    def campaign_file_exists?(campaign, filename)
-      return bucket.file_exists?(campaign, filename)
-    end
-
+    # Checks if the campaign has a file with the given unique identifier.
+    # @param campaign [Arkaan::Campaign] the campaign the files is supposed to be in.
+    # @param file_id [String] the unique identifier of the string to check the existence.
     def campaign_has_file?(campaign, file_id)
       campaign.invitations.each do |invitation|
         file = invitation.files.where(id: file_id).first
@@ -66,6 +69,9 @@ module Services
       return false
     end
 
+    # Searches for a file in the given campaign with the given identifier, then deletes it, and deletes it from AWS.
+    # @param campaign [Arkaan::Campaign] the campaign the file you want to delete is in.
+    # @param file_id [String] the unique identifier for the file.
     def delete_campaign_file(campaign, file_id)
       campaign.invitations.each do |invitation|
         file = invitation.files.where(id: file_id).first
@@ -76,10 +82,9 @@ module Services
       end
     end
 
-    def bucket_name(name)
-      return buckets_config[name][ENV['RACK_ENV']]
-    end
-
+    # Parses the MIME type from the file content given with a format : data:<mime_type>;base64,<content>
+    # @param content [String] the string representation of the content of the file.
+    # @return [String] the MIME type of the file (eq: "plain/text").
     def parse_mime_type(content)
       return content.split(';', 2).first.split(':', 2).last
     end

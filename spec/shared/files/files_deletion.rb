@@ -31,7 +31,7 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
         expect(campaign.invitations.first.files.count).to be 0
       end
       it 'Has deleted the file on AWS' do
-        expect(::Services::Files.instance.campaign_file_exists?(campaign, 'test.txt')).to be false
+        expect(::Services::Bucket.instance.file_exists?(campaign, 'test.txt')).to be false
       end
     end
 
@@ -93,7 +93,7 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
             })
           end
           it 'has not created the corresponding file' do
-            expect(::Services::Files.instance.campaign_file_exists?(campaign, 'test.txt'))
+            expect(::Services::Bucket.instance.file_exists?(campaign, 'test.txt'))
           end
         end
       end

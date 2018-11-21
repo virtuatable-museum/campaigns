@@ -87,7 +87,7 @@ RSpec.shared_examples 'POST /:id/files' do
             })
           end
           it 'has not created the corresponding file' do
-            expect(file_service.campaign_file_exists?(campaign, 'test.txt'))
+            expect(bucket_service.file_exists?(campaign, 'test.txt'))
           end
         end
         describe 'filename not given' do
@@ -111,7 +111,7 @@ RSpec.shared_examples 'POST /:id/files' do
             })
           end
           it 'has not created the corresponding file' do
-            expect(file_service.campaign_file_exists?(campaign, 'test.txt'))
+            expect(bucket_service.file_exists?(campaign, 'test.txt'))
           end
         end
         describe 'invalid MIME type' do
@@ -136,7 +136,7 @@ RSpec.shared_examples 'POST /:id/files' do
             })
           end
           it 'has not created the corresponding file' do
-            expect(file_service.campaign_file_exists?(campaign, 'test.txt'))
+            expect(bucket_service.file_exists?(campaign, 'test.txt'))
           end
         end
       end
@@ -167,7 +167,7 @@ RSpec.shared_examples 'POST /:id/files' do
             })
           end
           it 'has not created the corresponding file' do
-            expect(file_service.campaign_file_exists?(campaign, 'test.txt'))
+            expect(bucket_service.file_exists?(campaign, 'test.txt'))
           end
         end
       end
