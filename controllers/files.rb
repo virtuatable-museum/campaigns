@@ -3,8 +3,8 @@ module Controllers
 
     attr_accessor :service
 
-    def initialize
-      super
+    def initialize(argument)
+      super(argument)
       @service = ::Services::Files.instance
     end
 
