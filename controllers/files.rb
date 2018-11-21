@@ -27,7 +27,7 @@ module Controllers
       file = ::Services::Files.instance.create(_session, _campaign, params)
 
       if file.save
-        if ::Services::Files.instance.store(_campaign, file, params)
+        if ::Services::Files.instance.store(file, params)
           halt 200, Decorators::File.new(file).to_h.to_json
         else
           custom_error 400, 'files_creation.upload.failed'

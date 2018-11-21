@@ -1,5 +1,4 @@
 env_location = File.join(File.dirname(__FILE__), '..', '.env')
-puts env_location
 
 system "source #{env_location}"
 

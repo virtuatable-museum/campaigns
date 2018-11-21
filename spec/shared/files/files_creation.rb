@@ -2,12 +2,13 @@ RSpec.shared_examples 'POST /:id/files' do
   describe 'POST /:id/files' do
 
     let!(:file_service) { ::Services::Files.instance }
+    let!(:bucket_service) { ::Services::Bucket.instance }
 
     before :each do
-      file_service.create_bucket_if_not_exist('campaigns')
+      bucket_service.create_bucket_if_not_exists
     end
 
-    let!(:base_64_content) {'data:text/plain;base64,dGVzdApzYXV0IGRlIGxpZ25lIGV0IGVzcGFjZXMK'}
+    let!(:base_64_content) {'data:text/plain;base64,dGVzdApzYXV0IGRlIGxpZ25lIGV0IGVzcGFjZXM='}
     let!(:invalid_content) {'data:text/rtf;base64,dGVzdApzYXV0IGRlIGxpZ25lIGV0IGVzcGFjZXMK'}
     
     describe 'Nominal case' do
@@ -26,7 +27,6 @@ RSpec.shared_examples 'POST /:id/files' do
       it 'returns the correct body' do
         expect(last_response.body).to include_json({
           name: 'test.txt',
-          size: 30,
           type: 'text/plain'
         })
       end
@@ -42,9 +42,6 @@ RSpec.shared_examples 'POST /:id/files' do
 
         it 'has created a file with the correct name' do
           expect(created_file.name).to eq 'test.txt'
-        end
-        it 'has created a file with the correct size' do
-          expect(created_file.size).to eq 30
         end
         it 'has created a file with the correct MIME type' do
           expect(created_file.mime_type).to eq 'text/plain'
@@ -66,18 +63,18 @@ RSpec.shared_examples 'POST /:id/files' do
     describe :errors do
 
       before :all do
-        ::Services::Files.instance.empty_bucket('campaigns')
+        ::Services::Bucket.instance.remove_all
       end
 
       describe '400 errors' do
         describe 'file content not given' do
           before do
             post "/campaigns/#{campaign.id.to_s}/files",{
-            session_id: session.token,
-            app_key: 'test_key',
-            token: 'test_token',
-            name: 'test.txt'
-          }
+              session_id: session.token,
+              app_key: 'test_key',
+              token: 'test_token',
+              name: 'test.txt'
+            }
           end
           it 'Returns a Bad request (400) status code' do
             expect(last_response.status).to be 400
@@ -96,12 +93,12 @@ RSpec.shared_examples 'POST /:id/files' do
         describe 'filename not given' do
           before do
             post "/campaigns/#{campaign.id.to_s}/files", {
-            session_id: session.token,
-            app_key: 'test_key',
-            token: 'test_token',
-            size: 30,
-            content: base_64_content
-          }
+              session_id: session.token,
+              app_key: 'test_key',
+              token: 'test_token',
+              size: 30,
+              content: base_64_content
+            }
           end
           it 'Returns a Bad request (400) status code' do
             expect(last_response.status).to be 400
@@ -120,13 +117,13 @@ RSpec.shared_examples 'POST /:id/files' do
         describe 'invalid MIME type' do
           before do
             post "/campaigns/#{campaign.id.to_s}/files", {
-            session_id: session.token,
-            app_key: 'test_key',
-            token: 'test_token',
-            size: 30,
-            name: 'test.txt',
-            content: invalid_content
-          }
+              session_id: session.token,
+              app_key: 'test_key',
+              token: 'test_token',
+              size: 30,
+              name: 'test.txt',
+              content: invalid_content
+            }
           end
           it 'Returns a Bad request (400) status code' do
             expect(last_response.status).to be 400
