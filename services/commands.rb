@@ -4,68 +4,53 @@ module Services
   class Commands
     include Singleton
 
-    attr_reader :diceroll_regex
-
-    attr_reader :single_roll_regex
+    attr_reader :abbreviations
 
     def initialize
-      @diceroll_regex = /^([0-9]+((d|D)[0-9]+)?)(\+([0-9]+((d|D)[0-9]+)?))*$/
-      @single_roll_regex = /^[0-9]+(d|D)[0-9]+$/
+      @abbreviations = {'r' => 'roll', 'rs' => 'roll:secret'}
     end
 
     def create(session_id, campaign, command, content)
-
-      case command
-      when 'easteregg'
-        return 'easter egg to test'
-      when 'roll'
-        matches = content.match diceroll_regex
-
-        if matches.nil?
-          raise Services::Exceptions::UnparsableCommand.new
-        else
-          session = Arkaan::Authentication::Session.where(token: session_id).first
-          player = session.account.invitations.where(campaign: campaign).first
-
-          results = []
-          modifier = 0
-
-          tmp_rolls = content.split('+')
-          tmp_rolls.each do |tmp_roll|
-            if tmp_roll.match(single_roll_regex).nil?
-              modifier += tmp_roll.to_i
-            else
-              roll_elements = tmp_roll.downcase.split('d')
-              roll_results = {
-                number_of_dices: roll_elements[0].to_i,
-                number_of_faces: roll_elements[1].to_i,
-                results: []
-              }
-
-              roll_results[:number_of_dices].times {
-                roll_results[:results] << rand(roll_results[:number_of_faces]) + 1
-              }
-
-              results << roll_results
-            end
-          end
-
-          return Decorators::Message.new(
-            Arkaan::Campaigns::Message.create({
-              campaign: campaign,
-              player: player,
-              enum_type: 'command',
-              data: {
-                command: command,
-                modifier: modifier,
-                rolls: results
-              }
-            })
-          ).to_h
-        end
+      # Parses the eventually abbreviated form of the command in the normal form.
+      command = abbreviations.fetch(command, command)
+      
+      if ['roll', 'roll:secret'].include? command
+        results, modifier = Services::Command::Roll.instance.execute(content)
+        return get_message_from(campaign, session_id, {
+          command: command,
+          modifier: modifier,
+          rolls: results
+        })
       else
         raise Services::Exceptions::UnknownCommand.new
       end
+    end
+
+    private
+
+    # Gets the message hash from the given parameters.
+    # @param campaign [Arkaan::Campaign] the campaign in which the message is emitted.
+    # @param session [Arkaaan::Authentication::Session] the session of the player emitting the message.
+    # @param data [Hash] the additionnal data added to the message.
+    # @return [Hash] the Hash representation of the message.
+    def get_message_from(campaign, session, data)
+      return Decorators::Message.new(
+        Arkaan::Campaigns::Message.create({
+          campaign: campaign,
+          player: invitation(campaign, session),
+          enum_type: 'command',
+          data: data
+        })
+      ).to_h
+    end
+
+    # Gets the invitation for a player in a campaign
+    # @param campaign [Arkaan::Campaign] the campaign in which the invitation has been issued.
+    # @param session [Arkaan::Authentication::Session] the session of the player linked to the invitation.
+    # @return [Arkaan::Campaigns::Invitation] the invitation of the player in this campaign.    
+    def invitation(campaign, session_id)
+      session = Arkaan::Authentication::Session.where(token: session_id).first
+      return session.account.invitations.where(campaign: campaign).first
     end
   end
 end
