@@ -18,7 +18,7 @@ module Services
       return Decorators::Message.new(
         Arkaan::Campaigns::Message.create({
           campaign: campaign,
-          player: player,
+          player: get_player(session_id, campaign),
           enum_type: 'text',
           data: {
             content: content
