@@ -3,7 +3,7 @@ module Controllers
 
     declare_route 'get', '/:id/messages' do
       campaign = check_session_and_campaign(action: 'messages_list', strict: false)
-      halt 200, Services::Messages.instance.list(campaign).to_json
+      halt 200, Services::Messages.instance.list(params['session_id'], campaign).to_json
     end
 
     declare_route 'post', '/:id/messages' do

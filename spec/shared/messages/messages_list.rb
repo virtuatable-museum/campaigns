@@ -32,6 +32,171 @@ RSpec.shared_examples 'GET /:id/messages' do
       end
     end
 
+    describe 'Alternative cases' do
+      let!(:third_account) { create(:account, username: 'test_user_3', email: 'test3@mail.com') }
+      let!(:third_session) { create(:session, account: third_account, token: 'yet_another_token') }
+      let!(:third_invitation) { create(:accepted_invitation, campaign: campaign, account: third_account) }
+      let!(:admin_session) { create(:session, account: campaign.creator, token: 'admin_session_token') }
+
+      describe 'Public dice rolls' do
+        let!(:roll_dice) {
+          message = build(:message, enum_type: :command, player: third_invitation, data: {
+            command: 'roll',
+            number_of_dices: 1,
+            number_of_faces: 20,
+            modifier: 2,
+            results: [16]
+          })
+          campaign.messages = [message]
+          campaign.save
+          message
+        }
+
+        describe 'For the sender of the message' do
+          before do
+            get "/campaigns/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: third_session.token}
+          end
+          it 'Returns a 200 (OK) status code' do
+            expect(last_response.status).to be 200
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json([
+              {
+                type: 'command',
+                username: 'test_user_3',
+                data: {
+                  command: 'roll',
+                  number_of_dices: 1,
+                  number_of_faces: 20,
+                  modifier: 2,
+                  results: [16]
+                }
+              }
+            ])
+          end
+        end
+        describe 'For another player' do
+          before do
+            get "/campaigns/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: session.token}
+          end
+          it 'Returns a 200 (OK) status code' do
+            expect(last_response.status).to be 200
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json([
+              {
+                type: 'command',
+                username: 'test_user_3',
+                data: {
+                  command: 'roll',
+                  number_of_dices: 1,
+                  number_of_faces: 20,
+                  modifier: 2,
+                  results: [16]
+                }
+              }
+            ])
+          end
+        end
+        describe 'For the game master' do
+          before do
+            get "/campaigns/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: admin_session.token}
+          end
+          it 'Returns a 200 (OK) status code' do
+            expect(last_response.status).to be 200
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json([
+              {
+                type: 'command',
+                username: 'test_user_3',
+                data: {
+                  command: 'roll',
+                  number_of_dices: 1,
+                  number_of_faces: 20,
+                  modifier: 2,
+                  results: [16]
+                }
+              }
+            ])
+          end
+        end
+      end
+
+      describe 'Secret dice rolls' do
+        let!(:roll_dice) {
+          message = build(:message, enum_type: :command, player: third_invitation, data: {
+            command: 'roll:secret',
+            number_of_dices: 1,
+            number_of_faces: 20,
+            modifier: 2,
+            results: [16]
+          })
+          campaign.messages = [message]
+          campaign.save
+          message
+        }
+
+        describe 'For the sender of the message' do
+          before do
+            get "/campaigns/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: third_session.token}
+          end
+          it 'Returns a 200 (OK) status code' do
+            expect(last_response.status).to be 200
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json([
+              {
+                type: 'command',
+                username: 'test_user_3',
+                data: {
+                  command: 'roll:secret',
+                  number_of_dices: 1,
+                  number_of_faces: 20,
+                  modifier: 2,
+                  results: [16]
+                }
+              }
+            ])
+          end
+        end
+        describe 'For another player' do
+          before do
+            get "/campaigns/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: session.token}
+          end
+          it 'Returns a 200 (OK) status code' do
+            expect(last_response.status).to be 200
+          end
+          it 'Returns the correct body' do
+            expect(JSON.parse(last_response.body)).to eq []
+          end
+        end
+        describe 'For the game master' do
+          before do
+            get "/campaigns/#{campaign.id.to_s}/messages", {token: 'test_token', app_key: 'test_key', session_id: admin_session.token}
+          end
+          it 'Returns a 200 (OK) status code' do
+            expect(last_response.status).to be 200
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json([
+              {
+                type: 'command',
+                username: 'test_user_3',
+                data: {
+                  command: 'roll:secret',
+                  number_of_dices: 1,
+                  number_of_faces: 20,
+                  modifier: 2,
+                  results: [16]
+                }
+              }
+            ])
+          end
+        end
+      end
+    end
+
     it_should_behave_like 'a route', 'post', '/campaign_id/messages'
 
     describe '400 errors' do
