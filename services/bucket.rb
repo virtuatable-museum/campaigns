@@ -10,10 +10,14 @@ module Services
     # @!attribute [r] aws_bucket
     #   @return [Aws::S3::Bucket] the representation of the Amazon S3 bucket for the campaigns.
     attr_reader :aws_bucket
+    # @!attribute [r] logger
+    #   @return [Logger] the logger displaying messages in the console.
+    attr_reader :logger
 
     def initialize
       @aws_client = Aws::S3::Client.new
       @aws_bucket = load_buckets_config['campaigns'][ENV['RACK_ENV']]
+      @logger = Logger.new(STDOUT)
       create_bucket_if_not_exists
     end
 
@@ -81,6 +85,8 @@ module Services
       if file_exists?(campaign, filename)
         aws_client.delete_object(bucket: aws_bucket, key: "#{campaign.id.to_s}/#{filename}")
       end
+    rescue
+      logger.info("Impossible de supprimer le fichier #{filename}")
     end
 
     # Removes each and every file from the bucket.

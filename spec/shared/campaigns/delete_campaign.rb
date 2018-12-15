@@ -4,9 +4,18 @@ RSpec.shared_examples 'DELETE /:id' do
     let!(:campaign) { create(:campaign, creator: account) }
     let!(:invitation) { create(:accepted_invitation, campaign: campaign, account: other_account) }
     let!(:session) { create(:session, account: account) }
+    let!(:base_64_content) {'data:text/plain;base64,dGVzdApzYXV0IGRlIGxpZ25lIGV0IGVzcGFjZXM='}
 
     describe 'Nominal case' do
       before do
+        post "/campaigns/#{campaign.id.to_s}/files", {
+          session_id: session.token,
+          app_key: 'test_key',
+          token: 'test_token',
+          name: 'test.txt',
+          content: base_64_content
+        }
+
         delete '/campaigns/campaign_id', {token: 'test_token', app_key: 'test_key', session_id: session.token}
       end
       it 'Returns a OK (200) when you successfully delete a campaign' do
@@ -20,6 +29,9 @@ RSpec.shared_examples 'DELETE /:id' do
       end
       it 'has deleted the invitation properly' do
         expect(Arkaan::Campaigns::Invitation.count).to be 0
+      end
+      it 'has deleted the file properly' do
+        expect(Services::Files.instance.campaign_has_file?(campaign, 'test.txt')).to be false
       end
     end
 
