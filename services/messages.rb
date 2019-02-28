@@ -27,6 +27,11 @@ module Services
       )
     end
 
+    def belongs_to?(message, session_id)
+      session = Arkaan::Authentication::Session.where(token: session_id).first
+      return !session.nil? && session.account.id == message.player.account.id
+    end
+
     private
 
     def get_player(session_id, campaign)
