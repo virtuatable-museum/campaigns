@@ -23,8 +23,7 @@ module Controllers
       if !Services::Messages.instance.belongs_to?(message, params['session_id'])
         custom_error 403, 'messages.session_id.forbidden'
       end
-      campaign.messages.delete(message)
-      campaign.save
+      message.update_attribute(:deleted, true)
       halt 200, {message: 'deleted'}.to_json
     end
   end

@@ -14,9 +14,9 @@ RSpec.shared_examples 'DELETE /:id/messages/:message_id' do
       it 'Returns the correct body' do
         expect(last_response.body).to include_json({message: 'deleted'})
       end
-      it 'has correctly deleted the message' do
-        campaign.reload
-        expect(campaign.messages.count).to be 0
+      it 'has correctly marked the message as deleted' do
+        message.reload
+        expect(message.deleted).to be true
       end
     end
 
