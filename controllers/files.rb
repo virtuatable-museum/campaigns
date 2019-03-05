@@ -47,5 +47,24 @@ module Controllers
         custom_error 404, 'files_deletion.file_id.unknown'
       end
     end
+
+
+    declare_route 'post', '/:id/files/:file_id/permissions' do
+      _session = check_session('permissions_creation')
+      _campaign = get_campaign_for(_session, 'permissions_creation', strict: true)
+      check_presence('invitation_id', route: 'permissions_creation')
+
+      file = Arkaan::Campaigns::File.where(id: params['file_id']).first
+      invitation = Arkaan::Campaigns::Invitation.where(id: params['invitation_id']).first
+
+      if file.nil?
+        custom_error 404, 'permissions_creation.file_id.unknown'
+      elsif invitation.nil?
+        custom_error 404, 'permissions_creation.invitation_id.unknown'
+      else
+        Arkaan::Campaigns::Files::Permission.create(file: file, invitation: invitation, enum_level: :read)
+        halt 201, {message: 'created'}.to_json
+      end
+    end
   end
 end
