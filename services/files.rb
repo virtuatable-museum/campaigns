@@ -21,7 +21,8 @@ module Services
       return Arkaan::Campaigns::File.new(
         name: parameters['name'],
         mime_type: parse_mime_type(parameters['content']),
-        invitation: invitation
+        campaign: campaign,
+        creator: invitation
       )
     end
 
@@ -29,8 +30,8 @@ module Services
     # @param file [Arkaan::Campaigns::File] the file with the informations to store on AWS.
     # @param content [String] the text representation of the content of the file.
     def store(file, content)
-      bucket.store(file.invitation.campaign, file.name, content)
-      size = bucket.file_size(file.invitation.campaign, file.name)
+      bucket.store(file.campaign, file.name, content)
+      size = bucket.file_size(file.campaign, file.name)
       file.update_attribute(:size, size)
     end
 
@@ -38,9 +39,7 @@ module Services
     # @param campaign [Arkaan::Campaign] the campaign to obtain the files from.
     # @return [Array<Hash>] a list of decorated files represented as hashes.
     def list(campaign)
-      campaign.invitations.to_a.inject([]) do |buffer, invitation|
-        buffer += Decorators::File.decorate_collection(invitation.files.to_a).map(&:to_h)
-      end
+      return Decorators::File.decorate_collection(campaign.files.to_a).map(&:to_h)
     end
 
     # Returns the text representation of the file identified by this ID.
@@ -48,13 +47,10 @@ module Services
     # @param file_id [String] the unique identifier of the file.
     # @return [String, NilClass] the string representation of the file, or nil if the file does not exist in the database.
     def get_campaign_file(campaign, file_id)
-      campaign.invitations.each do |invitation|
-        invitation.reload
-        file = invitation.files.where(id: file_id).first
-        if !file.nil?
-          raw_content = bucket.file_content(campaign, file.name)
-          return "data:#{file.mime_type};base64,#{Base64.encode64(raw_content)}".strip
-        end
+      file = campaign.files.where(id: file_id).first
+      if !file.nil?
+        raw_content = bucket.file_content(campaign, file.name)
+        return "data:#{file.mime_type};base64,#{Base64.encode64(raw_content)}".strip
       end
     end
 
@@ -62,23 +58,17 @@ module Services
     # @param campaign [Arkaan::Campaign] the campaign the files is supposed to be in.
     # @param file_id [String] the unique identifier of the string to check the existence.
     def campaign_has_file?(campaign, file_id)
-      campaign.invitations.each do |invitation|
-        file = invitation.files.where(id: file_id).first
-        return true if !file.nil?
-      end
-      return false
+      return !campaign.files.where(id: file_id).first.nil?
     end
 
     # Searches for a file in the given campaign with the given identifier, then deletes it, and deletes it from AWS.
     # @param campaign [Arkaan::Campaign] the campaign the file you want to delete is in.
     # @param file_id [String] the unique identifier for the file.
     def delete_campaign_file(campaign, file_id)
-      campaign.invitations.each do |invitation|
-        file = invitation.files.where(id: file_id).first
-        if !file.nil?
-          file.delete
-          bucket.delete_file(campaign, file.name)
-        end
+      file = campaign.files.where(id: file_id).first
+      if !file.nil?
+        file.delete
+        bucket.delete_file(campaign, file.name)
       end
     end
 

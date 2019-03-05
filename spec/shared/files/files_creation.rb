@@ -30,21 +30,16 @@ RSpec.shared_examples 'POST /:id/files' do
           type: 'text/plain'
         })
       end
-      it 'has created a file in the corresponding invitation' do
+      it 'has created a file in the campaign' do
         campaign.reload
-        expect(campaign.invitations.first.files.count).to be 1
+        expect(campaign.files.count).to be 1
       end
       describe 'file parameters' do
-        let!(:created_file) {
-          campaign.reload
-          campaign.invitations.first.files.first
-        }
-
         it 'has created a file with the correct name' do
-          expect(created_file.name).to eq 'test.txt'
+          expect(campaign.files.first.name).to eq 'test.txt'
         end
         it 'has created a file with the correct MIME type' do
-          expect(created_file.mime_type).to eq 'text/plain'
+          expect(campaign.files.first.mime_type).to eq 'text/plain'
         end
       end
 

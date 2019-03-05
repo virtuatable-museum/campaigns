@@ -28,7 +28,7 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
         expect(last_response.body).to include_json({message: 'deleted'})
       end
       it 'Has deleted the file in the database' do
-        expect(campaign.invitations.first.files.count).to be 0
+        expect(campaign.files.count).to be 0
       end
       it 'Has deleted the file on AWS' do
         expect(::Services::Bucket.instance.file_exists?(campaign, 'test.txt')).to be false

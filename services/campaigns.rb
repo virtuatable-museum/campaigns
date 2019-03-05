@@ -38,10 +38,10 @@ module Services
     # @param campaign [Arkaan::Campaign] the campaign you want to delete.
     # @return [Boolean] TRUE if the deletion has been successfully done, FALSE otherwise.
     def delete(campaign)
-      campaign.invitations.each do |invitation|
-        invitation.files.pluck(:_id).each do |file_id|
+      campaign.files.pluck(:_id).each do |file|
           Services::Files.instance.delete_campaign_file(campaign, file_id)
-        end
+      end
+      campaign.invitations.each do |invitation|
         invitation.delete
       end
       return campaign.delete

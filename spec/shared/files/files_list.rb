@@ -3,10 +3,11 @@ RSpec.shared_examples 'GET /:id/files' do
     
     let!(:file) {
       create(:file, {
-        invitation: campaign.invitations.first,
+        creator: campaign.invitations.first,
         name: 'test.txt',
         mime_type: 'text/plain',
-        size: 19
+        size: 19,
+        campaign: campaign
       })
     }
     
