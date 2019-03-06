@@ -15,7 +15,7 @@ RSpec.shared_examples 'GET /:id/files/:file_id' do
       let!(:base_64_content) {'data:text/plain;base64,dGVzdApzYXV0IGRlIGxpZ25lIGV0IGVzcGFjZXMK'}
       let!(:file_id) {
         campaign.reload
-        campaign.invitations.first.files.first.id.to_s
+        campaign.files.first.id.to_s
       }
 
       after :each do

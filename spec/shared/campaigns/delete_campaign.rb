@@ -31,7 +31,7 @@ RSpec.shared_examples 'DELETE /:id' do
         expect(Arkaan::Campaigns::Invitation.count).to be 0
       end
       it 'has deleted the file properly' do
-        expect(Services::Files.instance.campaign_has_file?(campaign, 'test.txt')).to be false
+        expect(Arkaan::Campaigns::File.all.count).to be 0
       end
     end
 

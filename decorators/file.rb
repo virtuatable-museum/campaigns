@@ -3,7 +3,7 @@ module Decorators
     delegate_all
 
     def to_h
-      account = object.invitation.account
+      account = object.permissions.where(enum_level: :creator).first.invitation.account
       return {
         id: object.id.to_s,
         name: object.name,
