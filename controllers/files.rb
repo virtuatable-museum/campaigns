@@ -15,7 +15,7 @@ module Controllers
     declare_route 'get', '/:id/files' do
       _session = check_session('files_list')
       _campaign = get_campaign_for(_session, 'files_list', strict: false)
-      halt 200, ::Services::Files.instance.list(_campaign).to_json
+      halt 200, ::Services::Files.instance.list(_campaign, _session).to_json
     end
 
     declare_route 'post', '/:id/files' do

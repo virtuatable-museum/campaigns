@@ -37,10 +37,12 @@ module Services
     # List the files for a campaign by aggregating the files of the different invitations.
     # @param campaign [Arkaan::Campaign] the campaign to obtain the files from.
     # @return [Array<Hash>] a list of decorated files represented as hashes.
-    def list(campaign)
-      campaign.invitations.to_a.inject([]) do |buffer, invitation|
-        buffer += Decorators::File.decorate_collection(invitation.files.to_a).map(&:to_h)
+    def list(campaign, session)
+      invitation = campaign.invitations.where(account_id: session.account.id).first
+      files = campaign.files.to_a.select do |file|
+        !file.permissions.where(invitation_id: invitation.id).first.nil?
       end
+      return Decorators::File.decorate_collection(files).map(&:to_h)
     end
 
     # Returns the text representation of the file identified by this ID.

@@ -21,7 +21,7 @@ RSpec.shared_examples 'GET /:id/invitations' do
         expect(last_response.status).to be 200
       end
       it 'Returns the correct invitations when getting the invitations' do
-        expect(last_response.body).to include_json([
+        expect(last_response.body).to match_unordered_json([
           {
             'id' => campaign.invitations.where(enum_status: :creator).first.id.to_s,
             'status' => 'creator',
