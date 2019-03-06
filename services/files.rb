@@ -113,7 +113,13 @@ module Services
       permissions.each do |permission|
         if permission.is_a?(Hash) && permission.has_key?('invitation_id')
           invitation = Arkaan::Campaigns::Invitation.where(id: permission['invitation_id']).first
-          raise Services::Exceptions::UnknownInvitationId.new if invitation.nil?
+          if invitation.nil?
+            raise Arkaan::Utils::Errors::NotFound.new({
+              action: 'permissions_creation',
+              field: 'invitation_id',
+              error: 'unknown'
+            })
+          end
           level = permission['level'].to_sym rescue :read
           parsed_permissions << {invitation: invitation, level: level}
         end

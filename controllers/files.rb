@@ -57,11 +57,7 @@ module Controllers
       if file.nil?
         custom_error 404, 'permissions_creation.file_id.unknown'
       elsif params.has_key?('permissions')
-        begin
-          Services::Files.instance.update_permissions(file, params['permissions'])
-        rescue Services::Exceptions::UnknownInvitationId
-          custom_error 404, 'permissions_creation.invitation_id.unknown'
-        end
+        Services::Files.instance.update_permissions(file, params['permissions'])
       end
       halt 200, {message: 'updated'}.to_json
     end
