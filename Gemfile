@@ -20,7 +20,7 @@ group :development, :test do
   gem 'rspec'                  , '3.6.0'
   gem 'rspec-json_expectations', '2.1.0'
   gem 'factory_girl'           , '4.8.1'
-  gem 'simplecov'              , '0.15.1'
+  gem 'simplecov'              , '0.15.1', require: false
   gem 'database_cleaner'       , '1.6.1'
   gem 'bcrypt'                 , '3.1.11'
   gem 'rubocop'

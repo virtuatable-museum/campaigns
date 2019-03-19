@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 ENV['RACK_ENV'] = 'test'
 
 if !ENV.has_key?('AWS_ACCESS_KEY_ID') || !ENV.has_key?('AWS_SECRET_ACCESS_KEY')
