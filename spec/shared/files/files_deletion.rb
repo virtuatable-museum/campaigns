@@ -1,23 +1,16 @@
 RSpec.shared_examples 'DELETE /:id/files/:file_id' do
   describe 'DELETE /:id/files/:file_id' do
 
-    let!(:base_64_content) {'data:text/plain;base64,dGVzdApzYXV0IGRlIGxpZ25lIGV0IGVzcGFjZXMK'}
+    let!(:campaign) { create(:campaign, creator: account) }
+    let!(:content) {'data:text/plain;base64,dGVzdApzYXV0IGRlIGxpZ25lIGV0IGVzcGFjZXMK'}
+    let!(:file) { Services::Files.instance.create(session, campaign, 'test.txt', content) }
 
     describe 'Nominal case' do
       before :each do
-        # First we have to create the file before deleting it.
-        post "/campaigns/#{campaign.id.to_s}/files", {
+        delete "/campaigns/#{campaign.id}/files/#{file.id}", {
           session_id: session.token,
-          app_key: 'test_key',
-          token: 'test_token',
-          name: 'test.txt',
-          content: base_64_content
-        }
-        @file_id = JSON.parse(last_response.body)['id']
-        delete "/campaigns/#{campaign.id.to_s}/files/#{@file_id}", {
-          session_id: session.token,
-          app_key: 'test_key',
-          token: 'test_token'
+          app_key: appli.key,
+          token: gateway.token
         }
         campaign.reload
       end
@@ -41,10 +34,10 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
       describe '404 errors' do
         describe 'When the file is not found' do
           before do
-            delete "/campaigns/#{campaign.id.to_s}/files/unknown_file", {
+            delete "/campaigns/#{campaign.id}/files/unknown_file", {
               session_id: session.token,
-              app_key: 'test_key',
-              token: 'test_token'
+              app_key: appli.key,
+              token: gateway.token
             }
           end
           it 'Returns a Not Found (404) status code' do
@@ -67,19 +60,10 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
           let!(:other_session) { create(:session, token: 'any_other_token', account: other_account) }
 
           before do
-            # First we have to create the file before deleting it.
-            post "/campaigns/#{campaign.id.to_s}/files", {
-              session_id: session.token,
-              app_key: 'test_key',
-              token: 'test_token',
-              name: 'test.txt',
-              content: base_64_content
-            }
-            file_id = JSON.parse(last_response.body)['id']
-            delete "/campaigns/#{campaign.id.to_s}/files/#{file_id}", {
+            delete "/campaigns/#{campaign.id}/files/#{file.id}", {
               session_id: other_session.token,
-              app_key: 'test_key',
-              token: 'test_token'
+              app_key: appli.key,
+              token: gateway.token
             }
           end
           it 'Returns a Forbidden (403) status code' do

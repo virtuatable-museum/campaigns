@@ -1,11 +1,10 @@
 FactoryGirl.define do
   factory :empty_campaign, class: Arkaan::Campaign do
     factory :campaign do
-      _id 'campaign_id'
-      title 'test_title'
-      description 'A longer description of the campaign'
+      title { Faker::Alphanumeric.unique.alphanumeric(20) }
+      description { Faker::TvShows::BojackHorseman.quote }
       is_private true
-      tags ['test_tag']
+      tags { [Faker::Movies::StarWars.planet] }
     end
   end
 end

@@ -1,15 +1,14 @@
-env_location = File.join(File.dirname(__FILE__), '..', '.env')
-
-system "source #{env_location}"
-
 ENV['RACK_ENV'] = 'test'
-ENV['APP_KEY'] = '5bbda7811d41c80b8bb19d54'
+
+if !ENV.has_key?('AWS_ACCESS_KEY_ID') || !ENV.has_key?('AWS_SECRET_ACCESS_KEY')
+  puts "Il semblerait que les variables d'environnements Amazon n'aient pas été chargé, tente un 'source .env' pour voir ?"
+  exit
+end
 
 require 'bundler'
 Bundler.require :test
 
 require './controllers/base.rb'
-
 require 'arkaan/specs'
 
 service = Arkaan::Utils::MicroService.instance
