@@ -53,6 +53,37 @@ RSpec.shared_examples 'POST /:id/files' do
       end
     end
 
+    describe 'Alternative cases' do
+      let!(:file) { create(:file, campaign: campaign, creator: campaign.invitations.first, name: 'test.txt') }
+
+      before do
+        post url, {
+          session_id: session.token,
+          app_key: appli.key,
+          token: gateway.token,
+          name: 'test.txt',
+          content: content
+        }
+      end
+
+      it 'Returns a OK (200) status code' do
+        expect(last_response.status).to be 200
+      end
+      it 'returns the correct body' do
+        expect(last_response.body).to include_json({
+          name: 'test (1).txt',
+          type: 'text/plain'
+        })
+      end
+      it 'has created a file in the campaign' do
+        campaign.reload
+        expect(campaign.files.count).to be 2
+      end
+      it 'has created a file with the correct name' do
+        expect(campaign.files.where(name: 'test (1).txt').exists?).to be true
+      end
+    end
+
     it_behaves_like 'a route', 'post', '/campaign_id/files'
 
     describe :errors do
