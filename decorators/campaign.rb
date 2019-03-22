@@ -22,16 +22,12 @@ module Decorators
       object.tags.each do |tag|
         tag_object = Arkaan::Campaigns::Tag.where(content: tag).first
         if tag_object.count > 1
-          tag_object.count = tag_object.tag - 1
+          tag_object.count = tag_object.count - 1
           tag_object.save
         else
           tag_object.delete
         end
       end
-    end
-
-    def invitations
-      Decorators::Invitation.decorate_collection(object.invitations.order_by(enum_status: :asc)).map(&:to_h)
     end
 
     def players_count

@@ -74,6 +74,17 @@ RSpec.shared_examples 'POST /' do
       end
     end
 
+    describe 'when the given tag already exists' do
+      let!(:tag) { create(:tag) }
+      before do
+        post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'some title', tags: ['test_tag'], creator_id: account.id.to_s}
+      end
+      it 'has correctly updated the count of the tag' do
+        tag.reload
+        expect(tag.count).to be 2
+      end
+    end
+
     describe 'when the privacy flag is given as a string' do
       before do
         post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'some title', is_private: 'true', creator_id: account.id.to_s}

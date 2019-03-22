@@ -1,7 +1,7 @@
 RSpec.shared_examples 'PUT /:id' do
   describe 'PUT /:id' do
     let!(:campaign) { create(:campaign, creator: account, max_players: 4) }
-    let!(:counter) { Arkaan::Campaigns::Tag.create(content: campaign.tags.first, count: 1) }
+    let!(:counter) { create(:tag, content: campaign.tags.first) }
     let!(:session) { create(:session, account: account) }
 
     describe 'Successful updates' do
@@ -131,6 +131,35 @@ RSpec.shared_examples 'PUT /:id' do
           end
           it 'has left a tags counter with the right count' do
             expect(Arkaan::Campaigns::Tag.first.count).to be 1
+          end
+        end
+        describe 'Updating when an already existing tag' do
+          let!(:tag) { create(:tag) }
+          before do
+            put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, tags: ['test_tag'], session_id: session.token}
+          end
+          it 'Has correctly updated the campaign' do
+            campaign.reload
+            expect(campaign.tags).to eq ['test_tag']
+          end
+          it 'Has correctly updated the tag' do
+            tag.reload
+            expect(tag.count).to be 2
+          end
+        end
+        describe 'Removing a still existing tag from the tags list' do
+          let!(:tag) { create(:tag, content: 'test_deletion', count: 2) }
+          let!(:tag_delete_campaign) { create(:campaign, title: 'Tag deletion', creator: account, tags: ['test_deletion']) }
+          before do
+            put "/campaigns/#{tag_delete_campaign.id}", {token: gateway.token, app_key: appli.key, tags: [], session_id: session.token}
+          end
+          it 'Has correctly updated the campaign' do
+            tag_delete_campaign.reload
+            expect(tag_delete_campaign.tags).to eq []
+          end
+          it 'Has correctly updated the tag' do
+            tag.reload
+            expect(tag.count).to be 1
           end
         end
       end

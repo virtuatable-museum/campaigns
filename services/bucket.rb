@@ -55,9 +55,7 @@ module Services
     # @param filename [String] the name of the file you're looking for the size.
     # @return [Integer] the size of the file desired, or zero if the file is not found.
     def file_size(campaign, filename)
-      file_infos(campaign, filename).to_h[:content_length].to_i
-    rescue
-      return 0
+      return file_infos(campaign, filename).to_h[:content_length].to_i rescue 0
     end
 
     # Gets the text content of a file.
@@ -73,10 +71,8 @@ module Services
     # @param filename [String] the name of the file you're looking for.
     # @return [Boolean] TRUE if the file exists, FALSE otherwise.
     def file_exists?(campaign, filename)
-      Aws::S3::Client.new.get_object(bucket: aws_bucket, key: "#{campaign.id.to_s}/#{filename}")
-      return true
-    rescue
-      return false
+      parameters = {bucket: aws_bucket, key: "#{campaign.id.to_s}/#{filename}"}
+      return !! Aws::S3::Client.new.get_object() rescue false
     end
 
     # Deletes the file if it exists in the bucket.
