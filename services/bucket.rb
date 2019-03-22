@@ -86,15 +86,6 @@ module Services
       logger.info("Impossible de supprimer le fichier #{filename}")
     end
 
-    # Removes each and every file from the bucket.
-    def remove_all
-      objects = aws_client.list_objects(bucket: aws_bucket)[:contents]
-      objects.each do |object|
-        aws_client.delete_object(bucket: aws_bucket, key: object[:key])
-      end
-      aws_client.delete_bucket(bucket: aws_bucket)
-    end
-
     def load_buckets_config
       YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'buckets.yml'))
     end
