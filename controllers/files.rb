@@ -56,8 +56,14 @@ module Controllers
       file = service.get(params['file_id'])
       if file.nil?
         custom_error 404, 'permissions_creation.file_id.unknown'
-      elsif params.has_key?('permissions')
-        Services::Files.instance.update_permissions(file, params['permissions'])
+      else
+        if params.has_key?('permissions')
+          Services::Files.instance.update_permissions(file, params['permissions'])
+        end
+        if params.has_key?('name')
+          file.update_attribute(:name, params['name'])
+          file.save
+        end
       end
       halt 200, {message: 'updated'}.to_json
     end

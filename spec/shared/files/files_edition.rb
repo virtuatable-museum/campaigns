@@ -23,6 +23,47 @@ RSpec.shared_examples 'PUT /:id/files/:file_id' do
       put _url, {session_id: session.token, token: gateway.token, app_key: appli.key, permissions: permissions}
     end
 
+    describe 'name edition' do
+      let(:first_file) { create(:file, name: 'test.txt', campaign: campaign, creator: master_invitation) }
+
+      context 'when the new name does not exist already' do
+        before do
+          put "/campaigns/#{campaign.id}/files/#{first_file.id}", {session_id: session.token, token: gateway.token, app_key: appli.key, name: 'pouet.txt'}
+        end
+        it 'Returns a OK (200) status code' do
+          expect(last_response.status).to be 200
+        end
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json({message: 'updated'})
+        end
+        it 'Has modified the old name so that it can\'t be found' do
+          expect(campaign.files.where(name: 'test.txt').count).to be 0
+        end
+        it 'Has attributed a new name that can be found' do
+          expect(campaign.files.where(name: 'pouet.txt').count).to be 1
+        end
+      end
+      context 'when the new title already exists' do
+        let!(:second_file) { create(:file, name: 'pouet.txt', campaign: campaign, creator: master_invitation) }
+
+        before do
+          put "/campaigns/#{campaign.id}/files/#{first_file.id}", {session_id: session.token, token: gateway.token, app_key: appli.key, name: 'pouet.txt'}
+        end
+        it 'Returns a OK (200) status code' do
+          expect(last_response.status).to be 200
+        end
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json({message: 'updated'})
+        end
+        it 'Has not modified the name of the first file' do
+          expect(campaign.files.where(name: 'pouet.txt').first.id).to eq(second_file.id)
+        end
+        it 'Has modified the name of the last file' do
+          expect(campaign.files.where(name: 'pouet (1).txt').first.id).to eq(first_file.id)
+        end
+      end
+    end
+
     describe 'when adding a permission' do
       describe 'Nominal case' do
         before do
