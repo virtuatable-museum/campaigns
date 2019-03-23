@@ -34,6 +34,9 @@ RSpec.shared_examples 'POST /:id/files' do
         campaign.reload
         expect(campaign.files.count).to be 1
       end
+      it 'has created the file on AWS' do
+        expect(Services::Bucket.instance.file_exists?(campaign, campaign.files.first.name)).to be true
+      end
       describe 'file parameters' do
         it 'has created a file with the correct name' do
           expect(campaign.files.first.name).to eq 'test.txt'

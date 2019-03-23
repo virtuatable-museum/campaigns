@@ -9,6 +9,10 @@ RSpec.describe Controllers::Files do
 
   def app; Controllers::Files.new; end
 
+  after :all do
+    Services::Bucket.instance.remove_all
+  end
+
   # rspec spec/controllers/files_spec.rb[1:1]
   include_examples 'POST /:id/files'
 
