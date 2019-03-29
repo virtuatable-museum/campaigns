@@ -72,7 +72,7 @@ module Services
     # @return [Boolean] TRUE if the file exists, FALSE otherwise.
     def file_exists?(campaign, filename)
       parameters = {bucket: aws_bucket, key: "#{campaign.id.to_s}/#{filename}"}
-      return !! Aws::S3::Client.new.get_object() rescue false
+      return !! Aws::S3::Client.new.get_object(parameters) rescue false
     end
 
     # Deletes the file if it exists in the bucket.

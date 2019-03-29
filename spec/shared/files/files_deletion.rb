@@ -23,8 +23,30 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
       it 'Has deleted the file in the database' do
         expect(campaign.files.count).to be 0
       end
-      it 'Has deleted the file on AWS' do
-        expect(::Services::Bucket.instance.file_exists?(campaign, 'test.txt')).to be false
+    end
+
+    describe 'Alternative cases' do
+      context 'it has a content uploaded on AWS' do
+        before do
+          Services::Files.instance.store(file, content)
+          delete "/campaigns/#{campaign.id}/files/#{file.id}", {
+            session_id: session.token,
+            app_key: appli.key,
+            token: gateway.token
+          }
+        end
+        it 'Returns a OK (200) status code' do
+          expect(last_response.status).to be 200
+        end
+        it 'Returns the correct body' do
+          expect(last_response.body).to include_json({message: 'deleted'})
+        end
+        it 'Has deleted the file in the database' do
+          expect(campaign.files.count).to be 0
+        end
+        it 'Has deleted the file on AWS' do
+          expect(::Services::Bucket.instance.file_exists?(campaign, 'test.txt')).to be false
+        end
       end
     end
 
