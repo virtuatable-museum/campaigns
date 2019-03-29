@@ -185,7 +185,6 @@ RSpec.shared_examples 'PUT /:id' do
       end
 
       describe 'when the updated title is already used by another campaign' do
-        let!(:campaign) { create(:campaign, creator: account) }
         let!(:other_campaign) { create(:campaign, id: 'another_campaign_id', title: 'another title', creator: account) }
 
         before do
@@ -199,6 +198,59 @@ RSpec.shared_examples 'PUT /:id' do
             'status' => 400,
             'field' => 'title',
             'error' => 'uniq'
+          })
+        end
+      end
+
+      describe 'when the updated max number of players is below the current number of players' do
+        let!(:second_account) { create(:account) }
+        let!(:third_account) { create(:account) }
+        let!(:second_invitation) { create(:accepted_invitation, campaign: campaign, account: second_account) }
+        let!(:third_invitation) { create(:accepted_invitation, campaign: campaign, account: third_account) }
+
+        before do
+          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, max_players: 1, session_id: session.token}
+        end
+        it 'returns a 400 (Bad Request) status code' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body' do
+          expect(last_response.body).to include_json({
+            'status' => 400,
+            'field' => 'max_players',
+            'error' => 'minimum'
+          })
+        end
+      end
+
+      describe 'when the max_players is below 1' do
+        before do
+          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, max_players: 0, session_id: session.token}
+        end
+        it 'returns a 400 (Bad Request) status code' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body' do
+          expect(last_response.body).to include_json({
+            'status' => 400,
+            'field' => 'max_players',
+            'error' => 'minimum'
+          })
+        end
+      end
+
+      describe 'when the max_players is above 20' do
+        before do
+          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, max_players: 21, session_id: session.token}
+        end
+        it 'returns a 400 (Bad Request) status code' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body' do
+          expect(last_response.body).to include_json({
+            'status' => 400,
+            'field' => 'max_players',
+            'error' => 'maximum'
           })
         end
       end
