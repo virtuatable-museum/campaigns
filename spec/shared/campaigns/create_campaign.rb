@@ -216,6 +216,38 @@ RSpec.shared_examples 'POST /' do
           expect(Arkaan::Campaign.count).to be 1
         end
       end
+
+      describe 'max_players minimum not respected' do
+        before do
+          post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'Any long enough title', creator_id: account.id.to_s, max_players: 0}
+        end
+        it 'returns a 400 (Bad request) status code' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body' do
+          expect(last_response.body).to include_json({
+            status: 400,
+            field: 'max_players',
+            error: 'minimum'
+          })
+        end
+      end
+
+      describe 'max_players maximum not respected' do
+        before do
+          post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'Any long enough title', creator_id: account.id.to_s, max_players: 21}
+        end
+        it 'returns a 400 (Bad request) status code' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body' do
+          expect(last_response.body).to include_json({
+            status: 400,
+            field: 'max_players',
+            error: 'maximum'
+          })
+        end
+      end
     end
   end
 end
