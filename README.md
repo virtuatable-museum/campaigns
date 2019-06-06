@@ -30,18 +30,7 @@ When the gemset is correctly created, just use `bundle install` to install depen
 
 ## Environment variables
 
-Here is an example of a complete `.env` file you can complete to launch the application :
-
-```
-export AWS_ACCESS_KEY_ID=<Your amazon public key>
-export AWS_SECRET_ACCESS_KEY=<Your amazon secret key>
-export AWS_REGION=<Your amazon region>
-export MONGODB_URL=<your complete mongoDB url with credentials>
-export OAUTH_TOKEN=<Heroku connection token>
-export PORT=<port of your choice>
-export RACK_ENV=<either production or development>
-export SERVICE_URL=<the complete URL where this instance can be accessed>
-```
+See [this wiki page](https://github.com/jdr-tools/campaigns/wiki/Environment-variables) to learn more about environment variables
 
 # Launch
 
