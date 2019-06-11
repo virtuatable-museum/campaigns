@@ -1,4 +1,3 @@
-ruby '2.3.4'
 source 'https://rubygems.org'
 
 group :development, :production, :test do
@@ -7,15 +6,17 @@ group :development, :production, :test do
   gem 'arkaan' , '1.5.0'
   gem 'draper' , '3.0.1'
   gem 'aws-sdk', '3.0.1'
-
-  gem 'capistrano'        , '3.11.0'
-  gem 'capistrano-bundler', '1.5.0'
-  gem 'capistrano-rvm'    , '0.1.1'
-  gem 'dotenv', '2.7.2'
+  gem 'dotenv' , '2.7.2'
 end
 
 group :developement, :production do
   gem 'rake'
+end
+
+group :production do
+  gem 'capistrano'        , '3.11.0'
+  gem 'capistrano-bundler', '1.5.0'
+  gem 'capistrano-rvm'    , '0.1.1'
 end
 
 group :development, :test do
@@ -28,5 +29,5 @@ group :development, :test do
   gem 'simplecov'              , '0.15.1', require: false
   gem 'database_cleaner'       , '1.6.1'
   gem 'bcrypt'                 , '3.1.11'
-  gem 'rubocop'
+  gem 'rubocop'                , '0.71.0'
 end
