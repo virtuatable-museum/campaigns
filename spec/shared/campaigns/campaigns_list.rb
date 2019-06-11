@@ -18,22 +18,22 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({
-          'count' => 1,
-          'items' => [
+        expect(last_response.body).to include_json({
+          count: 1,
+          items: [
             {
-              'id' => other_campaign.id.to_s,
-              'title' => other_campaign.title,
-              'description' => other_campaign.description,
-              'creator' => {
-                'id' => other_account.id.to_s,
-                'username' => other_account.username
+              id: other_campaign.id.to_s,
+              title: other_campaign.title,
+              description: other_campaign.description,
+              creator: {
+                id: other_account.id.to_s,
+                username: other_account.username
               },
-              'invitation' => nil,
-              'is_private' => false,
-              'max_players' => 5,
-              'current_players' => 0,
-              'tags' => other_campaign.tags
+              invitation: nil,
+              is_private: false,
+              max_players: 5,
+              current_players: 0,
+              tags: other_campaign.tags
             }
           ]
         })
@@ -49,26 +49,26 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({
-          'count' => 1,
-          'items' => [
+        expect(last_response.body).to include_json({
+          count: 1,
+          items: [
             {
-              'id' => other_campaign.id.to_s,
-              'title' => other_campaign.title,
-              'description' => other_campaign.description,
-              'creator' => {
-                'id' => other_account.id.to_s,
-                'username' => other_account.username
+              id: other_campaign.id.to_s,
+              title: other_campaign.title,
+              description: other_campaign.description,
+              creator: {
+                id: other_account.id.to_s,
+                username: other_account.username
               },
-              'invitation' => {
-                'id' => invitation.id.to_s,
-                'created_at' => invitation.created_at.utc.iso8601,
-                'status' => 'pending'
+              invitation: {
+                id: invitation.id.to_s,
+                created_at: invitation.created_at.utc.iso8601,
+                status: 'pending'
               },
-              'is_private' => false,
-              'max_players' => 5,
-              'current_players' => 0,
-              'tags' => other_campaign.tags
+              is_private: false,
+              max_players: 5,
+              current_players: 0,
+              tags: other_campaign.tags
             }
           ]
         })
@@ -84,26 +84,26 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({
-          'count' => 1,
-          'items' => [
+        expect(last_response.body).to include_json({
+          count: 1,
+          items: [
             {
-              'id' => other_campaign.id.to_s,
-              'title' => other_campaign.title,
-              'description' => other_campaign.description,
-              'creator' => {
-                'id' => other_account.id.to_s,
-                'username' => other_account.username
+              id: other_campaign.id.to_s,
+              title: other_campaign.title,
+              description: other_campaign.description,
+              creator: {
+                id: other_account.id.to_s,
+                username: other_account.username
               },
-              'invitation' => {
-                'id' => invitation.id.to_s,
-                'created_at' => invitation.created_at.utc.iso8601,
-                'status' => 'request'
+              invitation: {
+                id: invitation.id.to_s,
+                created_at: invitation.created_at.utc.iso8601,
+                status: 'request'
               },
-              'is_private' => false,
-              'max_players' => 5,
-              'current_players' => 0,
-              'tags' => other_campaign.tags
+              is_private: false,
+              max_players: 5,
+              current_players: 0,
+              tags: other_campaign.tags
             }
           ]
         })
@@ -119,26 +119,26 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({
-          'count' => 1,
-          'items' => [
+        expect(last_response.body).to include_json({
+          count: 1,
+          items: [
             {
-              'id' => other_campaign.id.to_s,
-              'title' => other_campaign.title,
-              'description' => other_campaign.description,
-              'creator' => {
-                'id' => other_account.id.to_s,
-                'username' => other_account.username
+              id: other_campaign.id.to_s,
+              title: other_campaign.title,
+              description: other_campaign.description,
+              creator: {
+                id: other_account.id.to_s,
+                username: other_account.username
               },
-              'invitation' => {
-                'id' => invitation.id.to_s,
-                'created_at' => invitation.created_at.utc.iso8601,
-                'status' => 'accepted'
+              invitation: {
+                id: invitation.id.to_s,
+                created_at: invitation.created_at.utc.iso8601,
+                status: 'accepted'
               },
-              'is_private' => false,
-              'max_players' => 5,
-              'current_players' => 1,
-              'tags' => other_campaign.tags
+              is_private: false,
+              max_players: 5,
+              current_players: 1,
+              tags: other_campaign.tags
             }
           ]
         })
@@ -154,22 +154,22 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({
-          'count' => 1,
-          'items' => [
+        expect(last_response.body).to include_json({
+          count: 1,
+          items: [
             {
-              'id' => other_campaign.id.to_s,
-              'title' => other_campaign.title,
-              'description' => other_campaign.description,
-              'creator' => {
-                'id' => other_account.id.to_s,
-                'username' => other_account.username
+              id: other_campaign.id.to_s,
+              title: other_campaign.title,
+              description: other_campaign.description,
+              creator: {
+                id: other_account.id.to_s,
+                username: other_account.username
               },
-              'invitation' => nil,
-              'is_private' => false,
-              'max_players' => 5,
-              'current_players' => 0,
-              'tags' => other_campaign.tags
+              invitation: nil,
+              is_private: false,
+              max_players: 5,
+              current_players: 0,
+              tags: other_campaign.tags
             }
           ]
         })
@@ -185,22 +185,22 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({
-          'count' => 1,
-          'items' => [
+        expect(last_response.body).to include_json({
+          count: 1,
+          items: [
             {
-              'id' => other_campaign.id.to_s,
-              'title' => other_campaign.title,
-              'description' => other_campaign.description,
-              'creator' => {
-                'id' => other_account.id.to_s,
-                'username' => other_account.username
+              id: other_campaign.id.to_s,
+              title: other_campaign.title,
+              description: other_campaign.description,
+              creator: {
+                id: other_account.id.to_s,
+                username: other_account.username
               },
-              'invitation' => nil,
-              'is_private' => false,
-              'max_players' => 5,
-              'current_players' => 0,
-              'tags' => other_campaign.tags
+              invitation: nil,
+              is_private: false,
+              max_players: 5,
+              current_players: 0,
+              tags: other_campaign.tags
             }
           ]
         })
@@ -216,22 +216,22 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({
-          'count' => 1,
-          'items' => [
+        expect(last_response.body).to include_json({
+          count: 1,
+          items: [
             {
-              'id' => other_campaign.id.to_s,
-              'title' => other_campaign.title,
-              'description' => other_campaign.description,
-              'creator' => {
-                'id' => other_account.id.to_s,
-                'username' => other_account.username
+              id: other_campaign.id.to_s,
+              title: other_campaign.title,
+              description: other_campaign.description,
+              creator: {
+                id: other_account.id.to_s,
+                username: other_account.username
               },
-              'invitation' => nil,
-              'is_private' => false,
-              'max_players' => 5,
-              'current_players' => 0,
-              'tags' => other_campaign.tags
+              invitation: nil,
+              is_private: false,
+              max_players: 5,
+              current_players: 0,
+              tags: other_campaign.tags
             }
           ]
         })
@@ -248,7 +248,10 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({'count' => 0, 'items' => []})
+        expect(last_response.body).to include_json({
+          count: 0,
+          items: []
+        })
       end
     end
 
@@ -262,26 +265,26 @@ RSpec.shared_examples 'GET /' do
         expect(last_response.status).to be 200
       end
       it 'returns the correct body' do
-        expect(JSON.parse(last_response.body)).to eq({
-          'count' => 1,
-          'items' => [
+        expect(last_response.body).to include_json({
+          count: 1,
+          items: [
             {
-              'id' => other_campaign.id.to_s,
-              'title' => other_campaign.title,
-              'description' => other_campaign.description,
-              'creator' => {
-                'id' => other_account.id.to_s,
-                'username' => other_account.username
+              id: other_campaign.id.to_s,
+              title: other_campaign.title,
+              description: other_campaign.description,
+              creator: {
+                id: other_account.id.to_s,
+                username: other_account.username
               },
-              'invitation' => {
-                'id' => invitation.id.to_s,
-                'created_at' => invitation.created_at.utc.iso8601,
-                'status' => 'ignored'
+              invitation: {
+                id: invitation.id.to_s,
+                created_at: invitation.created_at.utc.iso8601,
+                status: 'ignored'
               },
-              'is_private' => false,
-              'max_players' => 5,
-              'current_players' => 0,
-              'tags' => other_campaign.tags
+              is_private: false,
+              max_players: 5,
+              current_players: 0,
+              tags: other_campaign.tags
             }
           ]
         })

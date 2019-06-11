@@ -32,7 +32,7 @@ module Controllers
 
       f = service.create(session, campaign, params['name'], params['content'])
 
-      if file.save
+      if f.save
         halt 200, Decorators::File.new(f).to_h.to_json
       else
         model_error f, 'files_creation'
