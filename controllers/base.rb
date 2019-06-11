@@ -1,5 +1,5 @@
 module Controllers
-  class Base < Arkaan::Utils::Controller
+  class Base < Arkaan::Utils::Controllers::Checked
 
     load_errors_from __FILE__
     
