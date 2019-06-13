@@ -54,7 +54,6 @@ module Controllers
     declare_route 'put', '/:id/files/:file_id' do
       session = check_session('permissions_creation')
       get_campaign_for(session, 'permissions_creation', strict: true)
-
       file = service.get(params['file_id'])
       if file.nil?
         custom_error 404, 'permissions_creation.file_id.unknown'
