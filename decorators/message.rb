@@ -7,12 +7,19 @@ module Decorators
     delegate_all
 
     def to_h
-      {
+      base = {
         id: object.id.to_s,
         username: object.player.account.username,
-        type: object.type,
-        created_at: object.created_at.utc.iso8601,
-        data: object.data
+        created_at: object.created_at.utc.iso8601
+      }
+
+      base.merge(deleted ? { type: 'deleted' } : text_content)
+    end
+
+    def text_content
+      {
+        type: type,
+        data: data
       }
     end
   end

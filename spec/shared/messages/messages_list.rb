@@ -17,7 +17,7 @@ RSpec.shared_examples 'GET /:id/messages' do
       it 'Returns a OK (200) status code' do
         expect(last_response.status).to be 200
       end
-      it 'Retuens the correct body' do
+      it 'Returns the correct body' do
         expect(last_response.body).to include_json([
           {
             id: message.id.to_s,
@@ -190,6 +190,61 @@ RSpec.shared_examples 'GET /:id/messages' do
                   modifier: 2,
                   results: [16]
                 }
+              }
+            ])
+          end
+        end
+      end
+
+      describe 'deleted message' do
+        let!(:deleted) { create(:message, player: chat_invitation, campaign: campaign, deleted: true) }
+
+        
+        describe 'For the sender of the message' do
+          before do
+            get "/campaigns/#{campaign.id.to_s}/messages", {token: gateway.token, app_key: appli.key, session_id: third_session.token}
+          end
+          it 'Returns a OK (200) status code' do
+            expect(last_response.status).to be 200
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json([
+              {
+                id: message.id.to_s,
+                username: another_account.username,
+                created_at: message.created_at.utc.iso8601,
+                type: 'text',
+                data: {
+                  content: 'test messages'
+                }
+              }
+            ])
+          end
+        end
+
+        describe 'For another player' do
+          before do
+            get "/campaigns/#{campaign.id.to_s}/messages", {token: gateway.token, app_key: appli.key, session_id: session.token}
+          end
+          it 'Returns a OK (200) status code' do
+            expect(last_response.status).to be 200
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json([
+              {
+                id: message.id.to_s,
+                username: another_account.username,
+                created_at: message.created_at.utc.iso8601,
+                type: 'text',
+                data: {
+                  content: 'test messages'
+                }
+              },
+              {
+                id: deleted.id.to_s,
+                username: another_account.username,
+                created_at: deleted.created_at.utc.iso8601,
+                type: 'deleted'
               }
             ])
           end
