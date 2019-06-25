@@ -30,12 +30,16 @@ module Controllers
       session = check_session('files_creation')
       campaign = get_campaign_for(session, 'files_creation', strict: true)
 
-      f = service.create(session, campaign, params['name'], params['content'])
+      begin
+        f = service.create(session, campaign, params['name'], params['content'])
 
-      if f.save
-        halt 200, Decorators::File.new(f).to_h.to_json
-      else
-        model_error f, 'files_creation'
+        if f.save
+          halt 200, Decorators::File.new(f).to_h.to_json
+        else
+          model_error f, 'files_creation'
+        end
+      rescue StandardError
+        custom_error 400, 'files_creation.storage.failure'
       end
     end
 

@@ -168,6 +168,29 @@ RSpec.shared_examples 'POST /:id/files' do
             expect(Services::Bucket.instance.file_exists?(campaign, 'test.txt'))
           end
         end
+        describe 'Impossibility to store the file' do
+          before do
+            allow(Services::Bucket.instance).to receive(:store).and_raise(StandardError.new)
+            post url, {
+              session_id: session.token,
+              app_key: appli.key,
+              token: gateway.token,
+              size: 30,
+              name: 'test.txt',
+              content: content
+            }
+          end
+          it 'Returns a Bad Request (400) status code' do
+            expect(last_response.status).to be 400
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json({
+              status: 400,
+              field: 'storage',
+              error: 'failure'
+            })
+          end
+        end
       end
 
       describe '403 errors' do
