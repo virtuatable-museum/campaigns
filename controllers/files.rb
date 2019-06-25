@@ -48,8 +48,12 @@ module Controllers
       campaign = get_campaign_for(session, 'files_deletion', strict: true)
 
       if service.campaign_has_file?(campaign, params['file_id'])
-        service.delete_campaign_file(campaign, params['file_id'])
-        halt 200, { message: 'deleted' }.to_json
+        begin
+          service.delete_campaign_file(campaign, params['file_id'])
+          halt 200, { message: 'deleted' }.to_json
+        rescue StandardError
+          custom_error 400, 'files_deletion.storage.failure'
+        end
       else
         custom_error 404, 'files_deletion.file_id.unknown'
       end

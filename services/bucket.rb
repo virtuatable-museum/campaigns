@@ -101,8 +101,6 @@ module Services
           key: "#{campaign.id}/#{filename}"
         )
       end
-    rescue StandardError
-      logger.info("Impossible de supprimer le fichier #{filename}")
     end
 
     def load_buckets_config

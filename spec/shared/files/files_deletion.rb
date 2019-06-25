@@ -53,6 +53,29 @@ RSpec.shared_examples 'DELETE /:id/files/:file_id' do
     it_behaves_like 'a route', 'delete', '/campaign_id/files/file_id'
 
     describe 'Errors' do
+      describe '400 errors' do
+        describe 'Impossibility to delete the file' do
+          before do
+            allow(Services::Bucket.instance).to receive(:delete_file).and_raise(StandardError.new)
+            Services::Files.instance.store(file, content)
+            delete "/campaigns/#{campaign.id}/files/#{file.id}", {
+              session_id: session.token,
+              app_key: appli.key,
+              token: gateway.token
+            }
+          end
+          it 'Returns a Bad Request (400) status code' do
+            expect(last_response.status).to be 400
+          end
+          it 'Returns the correct body' do
+            expect(last_response.body).to include_json({
+              status: 400,
+              field: 'storage',
+              error: 'failure'
+            })
+          end
+        end
+      end
       describe '404 errors' do
         describe 'When the file is not found' do
           before do
