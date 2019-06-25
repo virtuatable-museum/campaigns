@@ -33,6 +33,9 @@ RSpec.shared_examples 'DELETE /:id' do
       it 'has deleted the file properly' do
         expect(Arkaan::Campaigns::File.all.count).to be 0
       end
+      it 'has deleted the file on AWS' do
+        expect(Services::Bucket.instance.file_exists?(campaign, 'test.txt')).to be false
+      end
     end
 
     it_should_behave_like 'a route', 'delete', '/campaign_id'
