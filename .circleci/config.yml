@@ -1,27 +1,23 @@
-# Ruby CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-ruby/ for more details
-#
-version: 2
-jobs:
-  test-job:
+version: 2.1
+executors:
+  standard-docker:
     docker:
-      # specify the version you desire here
-       - image: circleci/ruby:2.6.3-node-browsers
-       - image: mongo:4.1.4-xenial
-
-    working_directory: ~/repo
-
+      - image: circleci/ruby:2.6.3-node-browsers
+      - image: mongo:4.1.4-xenial
+commands:
+  run-tests:
+    description: 'Runs a test suite given in parameter'
+    parameters:
+      filename:
+        type: string
+      suite:
+        type: string
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "Gemfile.lock" }}
-          # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
-
       - run:
           name: install dependencies
           command: |
@@ -30,23 +26,46 @@ jobs:
           paths:
             - ./vendor/bundle
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
-
-      # run tests!
       - run:
           name: run tests
           command: |
-            bundle exec rspec --format html --out /tmp/rspec.html --format progress
-      # collect reports
+            mkdir /tmp/test-results
+            
+            bundle exec rspec --format html \
+                            --out /tmp/test-results/<< parameters.filename >>.html \
+                            --format progress \
+                            << parameters.suite >>
       - store_test_results:
           path: /tmp/test-results
       - store_artifacts:
           path: /tmp/test-results
           destination: test-results
 
+jobs:
+  test-job-campaigns:
+    executor: standard-docker
+    working_directory: ~/repo
+    steps:
+      - run-tests:
+          filename: 'test_campaigns'
+          suite: 'spec/controllers/campaigns_spec.rb'
+  test-job-files:
+    executor: standard-docker
+    working_directory: ~/repo
+    steps:
+      - run-tests:
+          filename: 'test_files'
+          suite: 'spec/controllers/files_spec.rb'
+  test-job-messages:
+    executor: standard-docker
+    working_directory: ~/repo
+    steps:
+      - run-tests:
+          filename: 'test_messages'
+          suite: 'spec/controllers/messages_spec.rb'
+
   deploy-job:
-    docker:
-       - image: circleci/ruby:2.6.3-node-browsers
-       - image: mongo:3.6.12-xenial
+    executor: standard-docker
     working_directory: ~/repo
     steps:
       - add_ssh_keys:
@@ -57,17 +76,21 @@ jobs:
           name: Bundle Install
           command: bundle check || bundle install
       - run:
-          name: Deploy to AWS if tests pass and branch is Master
+          name: Deploy to Scaleway if tests pass and branch is Master
           command: bundle exec cap production deploy
 
 workflows:
-  version: 2
+  version: 2.1
   build-deploy:
     jobs:
-      - test-job
+      - test-job-campaigns
+      - test-job-files
+      - test-job-messages
       - deploy-job:
           requires:
-            - test-job
+            - test-job-campaigns
+            - test-job-files
+            - test-job-messages
           filters:
             branches:
               only: master
