@@ -138,6 +138,13 @@ module Services
       end
     end
 
+    # Gets a file by its unique identifier.
+    # @param file_id [String] the unique identifier of the file
+    # @return [Arkaan::Campaigns::File] the file object returned by the ORM
+    def get(file_id)
+      Arkaan::Campaigns::File.where(id: file_id).first
+    end
+
     private
 
     def create_from_hash(file, perm_hash)
@@ -146,10 +153,6 @@ module Services
         invitation: perm_hash[:invitation],
         enum_level: perm_hash[:level]
       )
-    end
-
-    def get(file_id)
-      Arkaan::Campaigns::File.where(id: file_id).first
     end
 
     def file_creation_error

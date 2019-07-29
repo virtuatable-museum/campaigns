@@ -129,7 +129,9 @@ workflows:
       - test-job-messages:
           requires:
             - rubocop-job
-      - doc-job
+      - doc-job:
+          requires:
+            - rubocop-job
       - deploy-job:
           requires:
             - test-job-campaigns
