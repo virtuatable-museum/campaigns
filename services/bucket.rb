@@ -95,12 +95,12 @@ module Services
     #   is supposed to be in.
     # @param filename [String] the name of the file you're looking to destroy.
     def delete_file(campaign, filename)
-      if file_exists?(campaign, filename)
-        aws_client.delete_object(
-          bucket: aws_bucket,
-          key: "#{campaign.id}/#{filename}"
-        )
-      end
+      return unless file_exists?(campaign, filename)
+
+      aws_client.delete_object(
+        bucket: aws_bucket,
+        key: "#{campaign.id}/#{filename}"
+      )
     end
 
     def load_buckets_config

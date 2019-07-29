@@ -30,4 +30,5 @@ group :development, :test do
   gem 'database_cleaner'       , '1.6.1'
   gem 'bcrypt'                 , '3.1.11'
   gem 'rubocop'                , '0.71.0'
+  gem 'yard'                   , '0.9.20'
 end

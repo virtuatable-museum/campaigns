@@ -37,6 +37,7 @@ module Services
       )
       return file unless file.valid?
       raise file_creation_error unless store(file, content)
+
       file
     end
 
@@ -53,10 +54,9 @@ module Services
     # @param campaign [Arkaan::Campaign] the campaign to obtain the files from.
     # @return [Array<Hash>] a list of decorated files represented as hashes.
     def list(campaign, session)
-      invitation = campaign.invitations.where(account_id: session.account.id).first
-      files = campaign.files.to_a.reject do |file|
-        file.permissions.where(invitation_id: invitation.id).first.nil?
-      end
+      params = { account_id: session.account.id }
+      invitation = campaign.invitations.where(params).first
+      files = get_authorized_files(campaign, invitation)
       Decorators::File.decorate_collection(files).map(&:to_h)
     end
 
@@ -105,68 +105,51 @@ module Services
     # @param permissions [Array<Hash>] an array of permissions,
     #   each permission is a hash responding to :invitation and :level.
     def update_permissions(file, permissions)
-      permissions = parse_permissions(permissions)
+      permissions = Services::Permissions.instance.parse(permissions)
+      remove_permissions(file, permissions)
+      insert_permissions(file, permissions)
+    end
+
+    # Removes the permissions of the file that are NOT contained in the permissions list.
+    # @param file [Arkaan::Campaigns::File] the file to remove the permissions from
+    # @param permissions [Array<Hash>] an array of permissions to check the existence in the file.
+    def remove_permissions(file, permissions)
       file.permissions.where(:enum_level.ne => :creator).each do |tmp_perm|
         still_existing = permissions.select do |p|
           p.invitation.id == tmp_perm.invitation.id
         end
         tmp_perm.delete if still_existing.count.zero?
       end
+    end
+
+    # Inserts the permissions from the array if not exist in the file, or increment it.
+    # @param file [Arkaan::campaigns::File] the file to increment the permissions from.
+    # @param permissions [Array<Hash>] the permissions to add in the file.
+    def insert_permissions(file, permissions)
       permissions.each do |tmp_perm|
         existing = file.permissions.where(
           invitation_id: tmp_perm[:invitation].id
         ).first
         if existing.nil?
-          Arkaan::Campaigns::Files::Permission.create(
-            file: file,
-            invitation: tmp_perm[:invitation],
-            enum_level: tmp_perm[:level]
-          )
+          create_from_hash(file, tmp_perm)
         else
           existing.update_attribute(:level, tmp_perm[:level])
         end
       end
     end
 
-    # Parses the permissions, only returning the valid ones,
-    # and transforming the invitations IDs in invitations.
-    #
-    # @param permissions [Array<Hash>] the raw permissions to filter
-    #   and transform.
-    # @return [Array<Hash>] an array of hashes responding to
-    #   the :invitation and :level methods.
-    def parse_permissions(permissions)
-      parsed_permissions = []
-      permissions.each do |permission|
-        next unless invitation_id?(permission)
+    private
 
-        perm_id = permission['invitation_id']
-        invitation = Arkaan::Campaigns::Invitation.where(id: perm_id).first
-        if invitation.nil?
-          raise Arkaan::Utils::Errors::NotFound.new(
-            action: 'permissions_creation',
-            field: 'invitation_id',
-            error: 'unknown'
-          )
-        end
-        level = begin
-          permission['level'].to_sym
-        rescue StandardError
-          :read
-        end
-        parsed_permissions << { invitation: invitation, level: level }
-      end
-      parsed_permissions
+    def create_from_hash(file, perm_hash)
+      Arkaan::Campaigns::Files::Permission.create(
+        file: file,
+        invitation: perm_hash[:invitation],
+        enum_level: perm_hash[:level]
+      )
     end
 
     def get(file_id)
       Arkaan::Campaigns::File.where(id: file_id).first
-    end
-
-    private
-
-    def invitation_id?(permission)
-      permission.is_a?(Hash) && permission.key?('invitation_id')
     end
 
     def file_creation_error
@@ -175,6 +158,13 @@ module Services
         field: 'upload',
         error: 'failed'
       )
+    end
+
+    def get_authorized_files(campaign, invitation)
+      campaign.files.to_a.reject do |file|
+        params = { invitation_id: invitation.id }
+        file.permissions.where(params).first.nil?
+      end
     end
   end
 end
