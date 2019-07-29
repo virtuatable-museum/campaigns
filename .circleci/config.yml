@@ -93,7 +93,7 @@ jobs:
           name: run static analysis
           command: |
             mkdir /tmp/rubocop
-            bundle exec rubocop -F -f h -o /tmp/rubocop/report.html
+            bundle exec rubocop -F -f h -o /tmp/rubocop/report.html controllers decorators services
       - store_test_results:
           path: /tmp/rubocop
       - store_artifacts:
