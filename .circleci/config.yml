@@ -2,26 +2,23 @@ version: 2.1
 
 orbs:
   virtuaexecutors: virtuaorbs/executors@0.1.0
-  virtuacommands: virtuaorbs/commands@0.3.0
+  virtuacommands: virtuaorbs/commands@0.5.1
 
 jobs:
   test-job-campaigns:
     executor: virtuaexecutors/mongoruby_2-6-3
     steps:
-      - virtuacommands/run-test-suites:
-          filename: 'test_campaigns'
+      - virtuacommands/run-rspec-tests:
           suite: 'spec/controllers/campaigns_spec.rb'
   test-job-files:
     executor: virtuaexecutors/mongoruby_2-6-3
     steps:
-      - virtuacommands/run-test-suites:
-          filename: 'test_files'
+      - virtuacommands/run-rspec-tests:
           suite: 'spec/controllers/files_spec.rb'
   test-job-messages:
     executor: virtuaexecutors/mongoruby_2-6-3
     steps:
-      - virtuacommands/run-test-suites:
-          filename: 'test_messages'
+      - virtuacommands/run-rspec-tests:
           suite: 'spec/controllers/messages_spec.rb'
   doc-job:
     executor: virtuaexecutors/mongoruby_2-6-3
