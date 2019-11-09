@@ -6,7 +6,7 @@ RSpec.describe Controllers::Campaigns do
 
   let!(:account) { create(:account) }
   let!(:gateway) { create(:gateway) }
-  let!(:application) { create(:application, creator: account) }
+  let!(:appli) { create(:application, creator: account) }
 
   def app
     Controllers::Campaigns.new
@@ -32,13 +32,4 @@ RSpec.describe Controllers::Campaigns do
 
   # rspec spec/controllers/campaigns_spec.rb[1:7]
   include_examples 'DELETE /:id'
-
-  # rspec spec/controllers/campaigns_spec.rb[1:8]
-  include_examples 'GET /:id/messages'
-
-  # rspec spec/controllers/campaigns_spec.rb[1:9]
-  include_examples 'POST /:id/messages'
-
-  # rspec spec/controllers/campaigns_spec.rb[1:10]
-  include_examples 'POST /:id/commands'
 end

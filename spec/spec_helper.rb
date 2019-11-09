@@ -1,11 +1,19 @@
+require 'simplecov'
+SimpleCov.start
+
 ENV['RACK_ENV'] = 'test'
-ENV['APP_KEY'] = '5bbda7811d41c80b8bb19d54'
 
 require 'bundler'
 Bundler.require :test
 
-require './controllers/base.rb'
+Dotenv.load(File.join(File.dirname(__FILE__), '..', '.env'))
 
+if !ENV.has_key?('AWS_ACCESS_KEY_ID') || !ENV.has_key?('AWS_SECRET_ACCESS_KEY')
+  puts "Il semblerait que les variables d'environnements Amazon n'aient pas été chargé, tente un 'source .env' pour voir ?"
+  exit
+end
+
+require './controllers/base.rb'
 require 'arkaan/specs'
 
 service = Arkaan::Utils::MicroService.instance

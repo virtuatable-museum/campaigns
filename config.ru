@@ -10,6 +10,7 @@ service = Arkaan::Utils::MicroService.instance
   .from_location(__FILE__)
   .in_standard_mode
 
+use Controllers::Status
 use Controllers::Files
 use Controllers::Invitations
 use Controllers::Messages

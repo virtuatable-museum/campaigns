@@ -3,8 +3,8 @@ RSpec.shared_examples 'POST /' do
     describe 'Nominal case' do
       before do
         post '/campaigns', {
-          token: 'test_token',
-          app_key: 'test_key',
+          token: gateway.token,
+          app_key: appli.key,
           title: 'some title',
           description: 'test',
           is_private: true,
@@ -61,7 +61,7 @@ RSpec.shared_examples 'POST /' do
 
     describe 'when no tags are given' do
       before do
-        post '/campaigns', {token: 'test_token', app_key: 'test_key', title: 'some title', is_private: true, creator_id: account.id.to_s}
+        post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'some title', is_private: true, creator_id: account.id.to_s}
       end
       it 'has correctly created a campaign' do
         expect(Arkaan::Campaign.all.count).to be 1
@@ -74,9 +74,20 @@ RSpec.shared_examples 'POST /' do
       end
     end
 
+    describe 'when the given tag already exists' do
+      let!(:tag) { create(:tag) }
+      before do
+        post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'some title', tags: ['test_tag'], creator_id: account.id.to_s}
+      end
+      it 'has correctly updated the count of the tag' do
+        tag.reload
+        expect(tag.count).to be 2
+      end
+    end
+
     describe 'when the privacy flag is given as a string' do
       before do
-        post '/campaigns', {token: 'test_token', app_key: 'test_key', title: 'some title', is_private: 'true', creator_id: account.id.to_s}
+        post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'some title', is_private: 'true', creator_id: account.id.to_s}
       end
       it 'has correctly created a campaign' do
         expect(Arkaan::Campaign.all.count).to be 1
@@ -91,7 +102,7 @@ RSpec.shared_examples 'POST /' do
 
     describe 'when the privacy flag is given at false' do
       before do
-        post '/campaigns', {token: 'test_token', app_key: 'test_key', title: 'some title', is_private: false, creator_id: account.id.to_s}
+        post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'some title', is_private: false, creator_id: account.id.to_s}
       end
       it 'has correctly created a campaign' do
         expect(Arkaan::Campaign.all.count).to be 1
@@ -106,7 +117,7 @@ RSpec.shared_examples 'POST /' do
 
     describe 'when the privacy flag is given as a string at false' do
       before do
-        post '/campaigns', {token: 'test_token', app_key: 'test_key', title: 'some title', is_private: 'false', creator_id: account.id.to_s}
+        post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'some title', is_private: 'false', creator_id: account.id.to_s}
       end
       it 'has correctly created a campaign' do
         expect(Arkaan::Campaign.all.count).to be 1
@@ -122,8 +133,8 @@ RSpec.shared_examples 'POST /' do
     describe 'when the same tag is given several times' do
       before do
         post '/campaigns', {
-          token: 'test_token',
-          app_key: 'test_key',
+          token: gateway.token,
+          app_key: appli.key,
           title: 'some title',
           description: 'test',
           is_private: true,
@@ -150,7 +161,7 @@ RSpec.shared_examples 'POST /' do
     describe 'bad requests errors' do
       describe 'Campaign title not given error' do
         before do
-          post '/campaigns', {token: 'test_token', app_key: 'test_key', description: 'test', is_private: true, creator_id: account.id.to_s}
+          post '/campaigns', {token: gateway.token, app_key: appli.key, description: 'test', is_private: true, creator_id: account.id.to_s}
         end
         it 'returns a Bad Request (400) error when not giving the campaign title' do
           expect(last_response.status).to be 400
@@ -169,7 +180,7 @@ RSpec.shared_examples 'POST /' do
 
       describe 'Campaign title too short' do
         before do
-          post '/campaigns', {token: 'test_token', app_key: 'test_key', title: 'a', is_private: true, creator_id: account.id.to_s}
+          post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'a', is_private: true, creator_id: account.id.to_s}
         end
         it 'returns an Bad Request (400) error when the title is too short' do
           expect(last_response.status).to be 400
@@ -188,8 +199,8 @@ RSpec.shared_examples 'POST /' do
 
       describe 'campaign title already taken' do
         before do
-          create(:campaign, title: 'test_title', creator: account)
-          post '/campaigns', {token: 'test_token', app_key: 'test_key', title: 'test_title', creator_id: account.id.to_s}
+          _campaign = create(:campaign, creator: account)
+          post '/campaigns', {token: gateway.token, app_key: appli.key, title: _campaign.title, creator_id: account.id.to_s}
         end
         it 'returns an Bad Request (400) error when the title is already used' do
           expect(last_response.status).to be 400
@@ -203,6 +214,38 @@ RSpec.shared_examples 'POST /' do
         end
         it 'has not created a new campaign' do
           expect(Arkaan::Campaign.count).to be 1
+        end
+      end
+
+      describe 'max_players minimum not respected' do
+        before do
+          post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'Any long enough title', creator_id: account.id.to_s, max_players: 0}
+        end
+        it 'returns a 400 (Bad request) status code' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body' do
+          expect(last_response.body).to include_json({
+            status: 400,
+            field: 'max_players',
+            error: 'minimum'
+          })
+        end
+      end
+
+      describe 'max_players maximum not respected' do
+        before do
+          post '/campaigns', {token: gateway.token, app_key: appli.key, title: 'Any long enough title', creator_id: account.id.to_s, max_players: 21}
+        end
+        it 'returns a 400 (Bad request) status code' do
+          expect(last_response.status).to be 400
+        end
+        it 'returns the correct body' do
+          expect(last_response.body).to include_json({
+            status: 400,
+            field: 'max_players',
+            error: 'maximum'
+          })
         end
       end
     end
