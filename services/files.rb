@@ -25,11 +25,11 @@ module Services
     #   will be created in.
     # @param name [String] the name of the file to store.
     # @param content [String] the base64 content of the file to store.
-    # @return [Arkaan::campaigns::File] the created file in the database,
+    # @return [Arkaan::Campaigns::Files::Document] the created file in the database,
     #   not yet persisted (but the upload has succeeded).
     def create(session, campaign, name, content)
       invitation = campaign.invitations.where(account: session.account).first
-      file = Arkaan::Campaigns::File.new(
+      file = Arkaan::Campaigns::Files::Document.new(
         name: name,
         mime_type: parse_mime_type(content),
         campaign: campaign,
@@ -42,7 +42,7 @@ module Services
     end
 
     # Stores a file, already persisted in the database, on amazon S3.
-    # @param file [Arkaan::Campaigns::File] the file with the informations to store on AWS.
+    # @param file [Arkaan::Campaigns::Files::Document] the file with the informations to store on AWS.
     # @param content [String] the text representation of the content of the file.
     def store(file, content)
       bucket.store(file.campaign, file.name, content)
@@ -101,7 +101,7 @@ module Services
     # 1. Remove the permissions that are not given in the update permissions parameters
     # 2. Add the permissions that does not already exist in the file but are given in the hash.
     #
-    # @param file [Arkaan::Campaigns::File] the file to update the permissions of.
+    # @param file [Arkaan::Campaigns::Files::Document] the file to update the permissions of.
     # @param permissions [Array<Hash>] an array of permissions,
     #   each permission is a hash responding to :invitation and :level.
     def update_permissions(file, permissions)
@@ -111,7 +111,7 @@ module Services
     end
 
     # Removes the permissions of the file that are NOT contained in the permissions list.
-    # @param file [Arkaan::Campaigns::File] the file to remove the permissions from
+    # @param file [Arkaan::Campaigns::Files::Document] the file to remove the permissions from
     # @param permissions [Array<Hash>] an array of permissions to check the existence in the file.
     def remove_permissions(file, permissions)
       file.permissions.where(:enum_level.ne => :creator).each do |tmp_perm|
@@ -123,7 +123,7 @@ module Services
     end
 
     # Inserts the permissions from the array if not exist in the file, or increment it.
-    # @param file [Arkaan::campaigns::File] the file to increment the permissions from.
+    # @param file [Arkaan::Campaigns::Files::Document] the file to increment the permissions from.
     # @param permissions [Array<Hash>] the permissions to add in the file.
     def insert_permissions(file, permissions)
       permissions.each do |tmp_perm|
@@ -140,9 +140,9 @@ module Services
 
     # Gets a file by its unique identifier.
     # @param file_id [String] the unique identifier of the file
-    # @return [Arkaan::Campaigns::File] the file object returned by the ORM
+    # @return [Arkaan::Campaigns::Files::Document] the file object returned by the ORM
     def get(file_id)
-      Arkaan::Campaigns::File.where(id: file_id).first
+      Arkaan::Campaigns::Files::Document.where(id: file_id).first
     end
 
     private
