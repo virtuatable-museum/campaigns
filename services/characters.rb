@@ -26,8 +26,6 @@ module Services
       validator = JSON.parse(File.open(filename).read)
       validator.all? do |field, constraints|
         send(:"validate_#{constraints['type']}", data[field], constraints)
-      rescue StandardError
-        false
       end
     end
 
