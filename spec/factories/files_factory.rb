@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :empty_file, class: Arkaan::Campaigns::File do
+  factory :empty_file, class: Arkaan::Campaigns::Files::Document do
     factory :file do
       mime_type 'image/jpg'
       name { Faker::File.unique.file_name }

@@ -31,7 +31,7 @@ RSpec.shared_examples 'DELETE /:id' do
         expect(Arkaan::Campaigns::Invitation.count).to be 0
       end
       it 'has deleted the file properly' do
-        expect(Arkaan::Campaigns::File.all.count).to be 0
+        expect(Arkaan::Campaigns::Files::Document.all.count).to be 0
       end
       it 'has deleted the file on AWS' do
         expect(Services::Bucket.instance.file_exists?(campaign, 'test.txt')).to be false

@@ -8,5 +8,32 @@ FactoryGirl.define do
       lastname { Faker::Name.last_name }
       firstname { Faker::Name.first_name }
     end
+
+    factory :didier do
+      username 'Didier l\'épervier'
+      password 'password'
+      password_confirmation 'password'
+      email 'didier@test.com'
+      lastname 'Super'
+      firstname 'Didier'
+    end
+
+    factory :jacques do
+      username 'Jacques la matraque'
+      password 'password'
+      password_confirmation 'password'
+      email 'jacques@test.com'
+      lastname 'Chirac'
+      firstname 'Jacques'
+    end
+
+    factory :louis do
+      username 'Louis l\'étourdi'
+      password 'password'
+      password_confirmation 'password'
+      email 'louis@test.com'
+      lastname 'Quatorze'
+      firstname 'Louis'
+    end
   end
 end

@@ -74,5 +74,13 @@ module Controllers
     def session_id
       params['session_id']
     end
+
+    # Returns the currently connected player, associated to the
+    # session requesting the route.
+    # @return [Arkaan::Campaigns::Invitation] the invitation of the currently conencted player.
+    def current_player
+      campaign = Arkaan::Campaign.where(id: params['id']).first
+      campaign.invitations.where(account: session.account).first
+    end
   end
 end
