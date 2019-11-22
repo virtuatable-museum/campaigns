@@ -32,7 +32,7 @@ module Services
       definition = JSON.parse(File.open(fullname).read)
       existing = Arkaan::Ruleset.where(name: definition['name']).first
       create_ruleset(account, definition) if existing.nil?
-      definition['folder'] = filename
+      definition['folder'] = directory
       @definitions << definition
     end
 

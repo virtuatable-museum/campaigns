@@ -13,9 +13,6 @@ service = Arkaan::Utils::MicroService.instance
 
 Services::Rulesets.load_from!(__dir__)
 
-require 'pry'
-binding.pry
-
 use Controllers::Status
 use Controllers::Files
 use Controllers::Invitations
