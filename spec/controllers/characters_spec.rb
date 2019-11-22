@@ -229,4 +229,38 @@ RSpec.describe Controllers::Characters do
       end
     end
   end
+
+  describe 'GET /:id/characters' do
+    let!(:character) { create(:character, data: JSON.parse(data), invitation: invitation) }
+    describe 'Nominal case' do
+      before do
+        get "/campaigns/#{campaign.id.to_s}/characters", {
+          session_id: session_jacques.token,
+          token: gateway.token,
+          app_key: appli.key
+        }
+      end
+      it 'Returns a 200 (OK) status code' do
+        expect(last_response.status).to be 200
+      end
+      it 'Returns the correct body' do
+        expect(last_response.body).to include_json([JSON.parse(data)])
+      end
+    end
+    describe 'As a game master' do
+      before do
+        get "/campaigns/#{campaign.id.to_s}/characters", {
+          session_id: session_didier.token,
+          token: gateway.token,
+          app_key: appli.key
+        }
+      end
+      it 'Returns a 200 (OK) status code' do
+        expect(last_response.status).to be 200
+      end
+      it 'Returns the correct body' do
+        expect(last_response.body).to include_json([JSON.parse(data)])
+      end
+    end
+  end
 end

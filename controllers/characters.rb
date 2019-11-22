@@ -3,7 +3,20 @@ module Controllers
   class Characters < Controllers::Base
     # We don't get a sheet via its unique ID as a player
     # should only be able to see only his/her sheet.
-    declare_route 'get', '/' do
+    declare_route 'get', '/:id/characters' do
+      campaign = check_session_and_campaign(action: 'characters_list', strict: false)
+      session = Arkaan::Authentication::Session.where(token: params['session_id']).first
+      invitation = campaign.invitations.where(account: session.account).first
+      if invitation.nil?
+        custom_error 403, 'characters_list.session_id.forbidden'
+      end
+
+      characters = if session.account.id == campaign.creator.id
+        campaign.invitations.map(&:characters).flatten
+      else
+        invitation.characters
+      end
+      halt 200, characters.map(&:data).to_json
     end
 
     # The creation, edition and deletion routes should
