@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 module Services
+  # This service validates and creates characters in the database
+  # @author Vincent Courtois <courtois.vincent@outlook.com>
   class Characters
     include Singleton
 
@@ -12,35 +16,40 @@ module Services
       character
     end
 
+    def rulesets
+      Services::Rulesets.instance
+    end
+
     def validate(invitation, data)
-      definition = Services::Rulesets.instance.definition_for(invitation.campaign)
+      definition = rulesets.definition_for(invitation.campaign)
       filename = File.join(definition['folder'], definition['validator'])
       validator = JSON.parse(File.open(filename).read)
-      return validator.all? do |field, constraints|
-        self.send(:"validate_#{constraints['type']}", data[field], constraints) rescue false
+      validator.all? do |field, constraints|
+        send(:"validate_#{constraints['type']}", data[field], constraints)
+      rescue StandardError
+        false
       end
     end
 
     def validate_string(value, constraints)
-      if constraints['minlength'] && value.length < constraints['minlength']
-        return false
-      end
-      return true
+      has_minlength = constraints.key?('minlength')
+      return false if has_minlength && value.length < constraints['minlength']
+
+      true
     end
 
     def validate_integer(value, constraints)
       return false unless value.is_a?(Integer) || !value.match(/^[0-9]+$/).nil?
-      if constraints['min'] && value.to_i < constraints['min']
-        return false
-      end
-      return true
+      return false if constraints['min'] && value.to_i < constraints['min']
+
+      true
     end
 
     def validate_enumeration(value, constraints)
-      if constraints['values'] && !constraints['values'].include?(value)
-        return false
-      end
-      return true
+      has_values = constraints.key?('values')
+      return false if has_values && !constraints['values'].include?(value)
+
+      true
     end
   end
 end

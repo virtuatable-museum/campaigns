@@ -57,7 +57,7 @@ RSpec.shared_examples 'POST /:id/files' do
     end
 
     describe 'Alternative cases' do
-      let!(:file) { create(:file, campaign: campaign, creator: campaign.invitations.first, name: 'test.txt') }
+      let!(:file) { create(:file, creator: campaign.invitations.first, name: 'test.txt') }
 
       before do
         post url, {

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Services
   # Service to load the rulesets and their associated files.
   # @author Vincent Courtois <courtois.vincent@outlook.com>
@@ -21,27 +23,31 @@ module Services
 
     def load!
       Dir[File.join(root, 'plugins', '**')].each do |filename|
-        if File.directory? filename
-          fullname = File.join(filename, 'plugin.json')
-          definition = JSON.parse(File.open(fullname).read)
-          existing = Arkaan::Ruleset.where(name: definition['name']).first
-          if existing.nil?
-            Arkaan::Ruleset.create({
-              name: definition['name'],
-              description: definition['description'],
-              creator: account
-            })
-          end
-          definition['folder'] = filename
-          @definitions << definition
-        end
+        load_directory!(filename) if File.directory? filename
       end
+    end
+
+    def load_directory!(directory)
+      fullname = File.join(directory, 'plugin.json')
+      definition = JSON.parse(File.open(fullname).read)
+      existing = Arkaan::Ruleset.where(name: definition['name']).first
+      create_ruleset(account, definition) if existing.nil?
+      definition['folder'] = filename
+      @definitions << definition
+    end
+
+    def create_ruleset(account, definition)
+      Arkaan::Ruleset.create(
+        name: definition['name'],
+        description: definition['description'],
+        creator: account
+      )
     end
 
     def definition_for(campaign)
       return nil if campaign.ruleset.nil?
 
-      return definitions.find do |definition|
+      definitions.find do |definition|
         definition['name'] == campaign.ruleset.name
       end
     end

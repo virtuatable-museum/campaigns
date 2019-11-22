@@ -9,7 +9,7 @@ RSpec.shared_examples 'GET /:id/files' do
     let!(:campaign) { create(:campaign, creator: master) }
     let!(:player_invitation) { create(:accepted_invitation, account: player, campaign: campaign) }
     let!(:master_invitation) { campaign.invitations.where(enum_status: :creator).first }
-    let!(:file) { create(:file, creator: master_invitation, campaign: campaign) }
+    let!(:file) { create(:file, creator: master_invitation) }
 
     let(:url) { "/campaigns/#{campaign.id}/files" }
 

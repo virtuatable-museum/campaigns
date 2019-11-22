@@ -32,7 +32,6 @@ module Services
       file = Arkaan::Campaigns::Files::Document.new(
         name: name,
         mime_type: parse_mime_type(content),
-        campaign: campaign,
         creator: invitation
       )
       return file unless file.valid?
