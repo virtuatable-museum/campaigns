@@ -1,0 +1,14 @@
+{
+	"level": {
+		"min": 0,
+		"type": "integer"
+	},
+	"class": {
+		"values": ["mage", "paladin", "wizard"],
+		"type": "enumeration"
+	},
+	"name": {
+		"minlength": 4,
+		"type": "string"
+	}
+}
