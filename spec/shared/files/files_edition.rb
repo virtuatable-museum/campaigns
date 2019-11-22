@@ -8,7 +8,6 @@ RSpec.shared_examples 'PUT /:id/files/:file_id' do
     let!(:master_invitation) { campaign.invitations.where(enum_status: :creator).first }
     let!(:perm_file) {
       create(:file, {
-        campaign: campaign,
         creator: master_invitation,
         name: 'test_permissions.txt',
         mime_type: 'text/plain'
@@ -24,7 +23,7 @@ RSpec.shared_examples 'PUT /:id/files/:file_id' do
     end
 
     describe 'name edition' do
-      let(:first_file) { create(:file, name: 'test.txt', campaign: campaign, creator: master_invitation) }
+      let(:first_file) { create(:file, name: 'test.txt', creator: master_invitation) }
 
       context 'when the new name does not exist already' do
         before do
@@ -44,7 +43,7 @@ RSpec.shared_examples 'PUT /:id/files/:file_id' do
         end
       end
       context 'when the new title already exists' do
-        let!(:second_file) { create(:file, name: 'pouet.txt', campaign: campaign, creator: master_invitation) }
+        let!(:second_file) { create(:file, name: 'pouet.txt', creator: master_invitation) }
 
         before do
           put "/campaigns/#{campaign.id}/files/#{first_file.id}", {session_id: session.token, token: gateway.token, app_key: appli.key, name: 'pouet.txt'}

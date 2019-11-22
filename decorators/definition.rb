@@ -1,17 +1,19 @@
-module Decorators
-  class Definition
+# frozen_string_literal: true
 
-    attr_reader :raw
+# module Decorators
+#   class Definition
 
-    attr_reader :validator
+#     attr_reader :raw
 
-    def initialize(raw)
-      @raw = raw
-      @validator = JSON.parse(File.open(File.join(raw['folder'], raw['validator'])).read)
-    end
+#     attr_reader :validator
 
-    def validate!(sheet)
+#     def initialize(raw)
+#       @raw = raw
+#       @validator = JSON.parse(File.open(File.join(raw['folder'], raw['validator'])).read)
+#     end
 
-    end
-  end
-end
+#     def validate!(sheet)
+
+#     end
+#   end
+# end
