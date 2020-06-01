@@ -11,12 +11,11 @@ module Services
     # @param parameters [Hash] the parameters to build the campaign with.
     # @param tags [Array<String>] and array of string tags to identify the
     #   content of the campaign.
-    def build(parameters, tags)
-      session_id = parameters.delete('session_id')
-      creator = Arkaan::Authentication::Session.where(token: session_id).first.account
-      campaign = Decorators::Campaign.new(Arkaan::Campaign.new(parameters))
-      campaign.creator = creator
+    def build(session, parameters, tags)
+      campaign = Arkaan::Campaign.new(parameters).enhance
+      campaign.creator = session.account
       campaign.assign_tags(tags.uniq)
+      campaign.save!
       campaign
     end
 

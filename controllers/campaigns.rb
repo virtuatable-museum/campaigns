@@ -29,8 +29,7 @@ module Controllers
 
     api_route 'post', '/' do
       check_presence('title')
-      campaign = Services::Campaigns.instance.build(campaign_params, tags || [])
-      campaign.save!
+      Services::Campaigns.instance.build(session, campaign_params, tags || [])
       halt 201, { message: 'created' }.to_json
     end
 
@@ -54,7 +53,7 @@ module Controllers
     #   or creation of a campaign.
     def campaign_params
       params.select do |key, _|
-        %w[title description is_private session_id max_players].include?(key)
+        %w[title description is_private max_players].include?(key)
       end
     end
 
