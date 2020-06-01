@@ -3,8 +3,8 @@
 module Decorators
   # Decorates a class model by adding it vanity methods.
   # @author Vincent Courtois <courtois.vincent@outlook.com>
-  class Campaign < Draper::Decorator
-    delegate_all
+  class Campaign < Virtuatable::Enhancers::Base
+    enhances Arkaan::Campaign
 
     # Assign an array of tags to a campaign and refreshes
     # or creates the associated counters.

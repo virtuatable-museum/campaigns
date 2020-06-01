@@ -3,8 +3,8 @@
 module Decorators
   # Decorator for an invitation object, providing vanity methods.
   # @author Vincent Courtois <courtois.vincent@outlook.com>
-  class Invitation < Draper::Decorator
-    delegate_all
+  class Invitation < Virtuatable::Enhancers::Base
+    enhances Arkaan::Campaigns::Invitation
 
     def to_simple_h
       if hide?

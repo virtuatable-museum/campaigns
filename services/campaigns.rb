@@ -12,8 +12,8 @@ module Services
     # @param tags [Array<String>] and array of string tags to identify the
     #   content of the campaign.
     def build(parameters, tags)
-      creator_id = parameters.delete('creator_id')
-      creator = Arkaan::Account.where(_id: creator_id).first
+      session_id = parameters.delete('session_id')
+      creator = Arkaan::Authentication::Session.where(token: session_id).first.account
       campaign = Decorators::Campaign.new(Arkaan::Campaign.new(parameters))
       campaign.creator = creator
       campaign.assign_tags(tags.uniq)
@@ -70,7 +70,7 @@ module Services
         :_id.nin => (blocked_campaign_ids + created_campaigns_ids)
       )
 
-      Decorators::Campaign.decorate_collection(campaigns).map do |decorator|
+      campaigns.map(&:enhance).map do |decorator|
         decorator.with_invitations(session)
       end
     end
