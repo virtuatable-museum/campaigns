@@ -4,13 +4,19 @@ development:
       database: arkaan
       hosts:
         - localhost:27017
+  options:
+    raise_not_found_error: true
 test:
   clients:
     default:
       database: arkaan_test
       hosts:
         - localhost:27017
+  options:
+    raise_not_found_error: true
 production:
   clients:
     default:
       uri: <%= ENV['MONGODB_URL'] %>
+  options:
+    raise_not_found_error: true
