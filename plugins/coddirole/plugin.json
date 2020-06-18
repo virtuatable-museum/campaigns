@@ -1,8 +1,0 @@
-{
-	"name": "Coddirole",
-	"description": "The gaming system designed for Coddity !",
-	"edition": "editor.html",
-	"display": "displayer.html",
-	"style": "style.css",
-	"validator": "validator.json"
-}
