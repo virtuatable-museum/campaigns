@@ -58,6 +58,7 @@ module Controllers
 
     def tags
       return [] if params['tags'].nil?
+
       params['tags'].reject(&:empty?)
     end
 
