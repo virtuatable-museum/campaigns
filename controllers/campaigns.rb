@@ -42,11 +42,10 @@ module Controllers
     #   end
     # end
 
-    # declare_route 'delete', '/:id' do
-    #   campaign = check_session_and_campaign(action: 'deletion')
-    #   Services::Campaigns.instance.delete(campaign)
-    #   halt 200, { message: 'deleted' }.to_json
-    # end
+    api_route 'delete', '/:id' do
+      Services::Campaigns.instance.delete(campaign)
+      halt 200, { message: 'deleted' }.to_json
+    end
 
     # Returns the parameters allowed to create or update a campaign.
     # @return [Hash] the parameters allowed in the edition
@@ -58,7 +57,15 @@ module Controllers
     end
 
     def tags
-      params['tags'].nil? ? nil : params['tags'].reject { |tag| tag == '' }
+      return [] if params['tags'].nil?
+      params['tags'].reject(&:empty?)
+    end
+
+    def campaign
+      campaign = Arkaan::Campaign.find(params['id'])
+      api_not_found('campaign_id') if campaign.nil?
+      api_forbidden('session_id') if campaign.creator != account
+      campaign
     end
   end
 end
