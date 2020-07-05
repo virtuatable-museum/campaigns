@@ -5,7 +5,7 @@ group :development, :production, :test do
   gem 'mongoid', '7.0.1'
 
   gem 'require_all'       , '3.0.0'
-  gem 'virtuatable'       , '2.6.1'
+  gem 'virtuatable'       , '2.6.2'
   gem 'arkaan'            , '2.7.1'
   gem 'capistrano'        , '3.11.0'
   gem 'capistrano-bundler', '1.5.0'
