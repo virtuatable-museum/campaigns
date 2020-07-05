@@ -60,12 +60,12 @@ module Controllers
     end
 
     def campaign(strict: true)
-      campaign = Arkaan::Campaign.find(params['id'])
-      api_not_found('campaign_id') if campaign.nil?
-      if campaign.creator != account && strict
-        api_forbidden('session_id')
-      end
-      campaign
+      c = Arkaan::Campaign.find(params['id'])
+      api_not_found('campaign_id') if c.nil?
+
+      return api_forbidden('session_id') if c.creator != account && strict
+
+      c
     end
   end
 end
