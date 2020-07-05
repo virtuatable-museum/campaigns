@@ -18,7 +18,7 @@ RSpec.describe Controllers::Campaigns do
   # include_examples 'GET /creations'
 
   # rspec spec/controllers/campaigns_spec.rb[1:3]
-  #include_examples 'GET /:id'
+  include_examples 'GET /:id'
 
   # rspec spec/controllers/campaigns_spec.rb[1:4]
   # include_examples'GET /:id/invitations'

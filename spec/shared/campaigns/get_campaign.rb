@@ -1,24 +1,24 @@
 RSpec.shared_examples 'Getting a campaign' do
   before do
-    get "/campaigns/#{campaign.id.to_s}", {token: gateway.token, app_key: appli.key, session_id: session.token}
+    get "/#{campaign.id.to_s}", {app_key: appli.key, session_id: session.token}
   end
   it 'returns a OK (200) response code when successfully getting a camapign' do
     expect(last_response.status).to be 200
   end
   it 'returns the correct body when getting a campaign' do
-    expect(JSON.parse(last_response.body)).to eq({
-      'id' => campaign.id.to_s,
-      'title' => campaign.title,
-      'description' => campaign.description,
-      'creator' => {
-        'id' => campaign.creator.id.to_s,
-        'username' => campaign.creator.username
+    expect(last_response.body).to include_json(
+      id: campaign.id.to_s,
+      title: campaign.title,
+      description: campaign.description,
+      creator: {
+        id: campaign.creator.id.to_s,
+        username: campaign.creator.username
       },
-      'is_private' => campaign.is_private,
-      'max_players' => campaign.max_players,
-      'current_players' => campaign.invitations.where(enum_status: :accepted).count,
-      'tags' => campaign.tags
-    })
+      is_private: campaign.is_private,
+      max_players: campaign.max_players,
+      current_players: campaign.invitations.where(enum_status: :accepted).count,
+      tags: campaign.tags
+    )
   end
 end
 
@@ -53,38 +53,17 @@ RSpec.shared_examples 'GET /:id' do
     describe '400 errors' do
       describe 'session ID not given' do
         before do
-          get "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key}
+          get "/#{campaign.id}", {app_key: appli.key}
         end
         it 'Returns a Bad Request (400) status' do
           expect(last_response.status).to be 400
         end
         it 'Returns the correct body' do
-          expect(JSON.parse(last_response.body)).to include_json({
-            'status' => 400,
-            'field' => 'session_id',
-            'error' => 'required'
-          })
-        end
-      end
-    end
-
-    describe '403 error' do
-      describe 'Session ID not allowed' do
-        let!(:another_account) { create(:account) }
-        let!(:session) { create(:session, account: another_account) }
-
-        before do
-          get "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, session_id: session.token}
-        end
-        it 'Returns a 403 error' do
-          expect(last_response.status).to be 403
-        end
-        it 'Returns the correct body' do
-          expect(JSON.parse(last_response.body)).to include_json({
-            'status' => 403,
-            'field' => 'session_id',
-            'error' => 'forbidden'
-          })
+          expect(last_response.body).to include_json(
+            status: 400,
+            field: 'session_id',
+            error: 'required'
+          )
         end
       end
     end
@@ -94,17 +73,17 @@ RSpec.shared_examples 'GET /:id' do
         let!(:session) { create(:session, account: account) }
         
         before do
-          get "/campaigns/unknown", {token: gateway.token, app_key: appli.key, session_id: session.token}
+          get "/unknown", {app_key: appli.key, session_id: session.token}
         end
         it 'Returns a Not Found (404) status' do
           expect(last_response.status).to be 404
         end
         it 'Returns the correct body' do
-          expect(JSON.parse(last_response.body)).to include_json({
-            'status' => 404,
-            'field' => 'campaign_id',
-            'error' => 'unknown'
-          })
+          expect(last_response.body).to include_json(
+            status: 404,
+            field: 'campaign_id',
+            error: 'unknown'
+          )
         end
       end
 
@@ -112,17 +91,17 @@ RSpec.shared_examples 'GET /:id' do
         let!(:session) { create(:session, account: account) }
         
         before do
-          get "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, session_id: 'fake_token'}
+          get "/#{campaign.id}", {app_key: appli.key, session_id: 'fake_token'}
         end
         it 'Returns a Not Found (404) status' do
           expect(last_response.status).to be 404
         end
         it 'Returns the correct body' do
-          expect(JSON.parse(last_response.body)).to include_json({
-            'status' => 404,
-            'field' => 'session_id',
-            'error' => 'unknown'
-          })
+          expect(last_response.body).to include_json(
+            status: 404,
+            field: 'session_id',
+            error: 'unknown'
+          )
         end
       end
     end
