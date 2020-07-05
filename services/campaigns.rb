@@ -66,8 +66,8 @@ module Services
         :_id.nin => (blocked_campaign_ids + created_campaigns_ids)
       )
 
-      campaigns.map(&:enhance).map do |decorator|
-        decorator.with_invitations(session)
+      campaigns.map(&:enhance).map do |enhancer|
+        enhancer.with_invitations(session)
       end
     end
 

@@ -19,13 +19,10 @@ module Controllers
     #   halt 200, { count: campaigns.count, items: items }.to_json
     # end
 
-    # declare_route 'get', '/:id' do
-    #   campaign = check_session_and_campaign(
-    #     action: 'informations',
-    #     strict: false
-    #   )
-    #   halt 200, Decorators::Campaign.new(campaign).to_h.to_json
-    # end
+    api_route 'get', '/:id' do
+      enhancer = campaign(strict: false).enhance
+      halt 200, enhancer.with_invitations(session).to_json
+    end
 
     api_route 'post', '/' do
       check_presence('title')
@@ -62,10 +59,12 @@ module Controllers
       params['tags'].reject(&:empty?)
     end
 
-    def campaign
+    def campaign(strict: true)
       campaign = Arkaan::Campaign.find(params['id'])
       api_not_found('campaign_id') if campaign.nil?
-      api_forbidden('session_id') if campaign.creator != account
+      if campaign.creator != account && strict
+        api_forbidden('session_id')
+      end
       campaign
     end
   end
