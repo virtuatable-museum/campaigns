@@ -86,6 +86,19 @@ jobs:
           gem install virtuatable
       - run: |
           virtuatable kube create campaigns --retry=3
+  tag-job:
+    docker:
+      - image: circleci/ruby:2.6.5-node-browsers
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "f3:07:d0:d8:a8:47:17:97:be:5f:24:09:10:3c:ac:5b"
+      - run: |
+          gem install virtuatable
+      - run: |
+          virtuatable docker latest campaigns | xargs git tag
+      - run: |
+          git push --tags
 workflows:
   version: 2.1
   build-deploy:
@@ -106,6 +119,12 @@ workflows:
       - deploy-job:
           requires:
             - build-job
+          filters:
+            branches:
+              only: master
+      - tag-job:
+          requires:
+            - deploy-job
           filters:
             branches:
               only: master
