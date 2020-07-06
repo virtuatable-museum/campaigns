@@ -93,7 +93,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "f3:07:d0:d8:a8:47:17:97:be:5f:24:09:10:3c:ac:5b"
+            - "58:25:6e:69:96:a3:5a:e2:2f:2f:92:1b:eb:64:04:be"
       - checkout
       - run: |
           gem install virtuatable
