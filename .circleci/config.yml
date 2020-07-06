@@ -78,6 +78,7 @@ jobs:
       - image: circleci/ruby:2.6.5-node-browsers
     steps:
       - kube/install-kubectl
+      - checkout
       - run: |
           mkdir $HOME/.kube
       - run: |
@@ -93,6 +94,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "f3:07:d0:d8:a8:47:17:97:be:5f:24:09:10:3c:ac:5b"
+      - checkout
       - run: |
           gem install virtuatable
       - run: |
