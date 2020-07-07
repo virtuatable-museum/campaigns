@@ -126,7 +126,7 @@ workflows:
               only: master
       - tag-job:
           requires:
-            - deploy-job
+            - build-job
           filters:
             branches:
               only: master
