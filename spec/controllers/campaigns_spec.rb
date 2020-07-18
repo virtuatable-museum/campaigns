@@ -27,7 +27,7 @@ RSpec.describe Controllers::Campaigns do
   include_examples 'POST /'
 
   # rspec spec/controllers/campaigns_spec.rb[1:6]
-  # include_examples 'PUT /:id'
+  include_examples 'PUT /:id'
 
   # rspec spec/controllers/campaigns_spec.rb[1:7]
   include_examples 'DELETE /:id'

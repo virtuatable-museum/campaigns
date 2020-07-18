@@ -28,7 +28,7 @@ module Services
     # @return [Boolean] TRUE if the campaign has successfully been updated,
     #   FALSE otherwise.
     def update(campaign, parameters, tags)
-      campaign = Decorators::Campaign.new(campaign)
+      campaign = campaign.enhance
       parameters.each do |key, value|
         campaign[key] = value
       end
@@ -36,7 +36,7 @@ module Services
         campaign.delete_tags
         campaign.assign_tags(tags.uniq)
       end
-      campaign.save
+      campaign.save!
     end
 
     # Deletes an existing campaign and its invitations.
@@ -50,7 +50,7 @@ module Services
 
     # Gets the list of campaigns available for the account of the given session.
     # An account can access two types of campaigns :
-    # 1. The campaigns he has an invitation in, where the status is NOT blocked.
+    # 1. The campaigns he has an invitation in.
     # 2. The public campaigns (is_private: false) he has either :
     #    - NO invitation in
     #    - an invitation that has a status that is NOT blocked
@@ -58,12 +58,11 @@ module Services
     #   account you want the list of campaigns.
     # @return [Array<Decorators::Campaign>] the list of campaigns.
     def list(session)
-      blocked_campaign_ids = invitations(session, :blocked).pluck(:campaign_id)
       created_campaigns_ids = invitations(session, :creator).pluck(:campaign_id)
 
       campaigns = Arkaan::Campaign.where(
         is_private: false,
-        :_id.nin => (blocked_campaign_ids + created_campaigns_ids)
+        :_id.nin => created_campaigns_ids
       )
 
       campaigns.map(&:enhance).map do |enhancer|

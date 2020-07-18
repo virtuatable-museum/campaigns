@@ -30,14 +30,10 @@ module Controllers
       halt 201, { message: 'created' }.to_json
     end
 
-    # declare_route 'put', '/:id' do
-    #   campaign = check_session_and_campaign(action: 'update')
-    #   if Services::Campaigns.instance.update(campaign, campaign_params, tags)
-    #     halt 200, { message: 'updated' }.to_json
-    #   else
-    #     model_error(campaign, 'update')
-    #   end
-    # end
+    api_route 'put', '/:id' do
+      Services::Campaigns.instance.update(campaign, campaign_params, tags)
+      halt 200, { message: 'updated' }.to_json
+    end
 
     api_route 'delete', '/:id' do
       Services::Campaigns.instance.delete(campaign)
@@ -54,8 +50,7 @@ module Controllers
     end
 
     def tags
-      return [] if params['tags'].nil?
-
+      return if params['tags'].nil?
       params['tags'].reject(&:empty?)
     end
 
