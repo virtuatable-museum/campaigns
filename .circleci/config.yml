@@ -98,6 +98,8 @@ jobs:
       - run: |
           gem install virtuatable
       - run: |
+          sleep 10
+      - run: |
           virtuatable docker latest campaigns | xargs git tag
       - run: |
           git push --tags

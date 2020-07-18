@@ -10,15 +10,6 @@ module Controllers
       halt 200, { count: campaigns.count, items: campaigns }.to_json
     end
 
-    # declare_route 'get', '/creations' do
-    #   session = check_session('own_list')
-    #   invitations = session.account.invitations.where(enum_status: :creator)
-    #   campaigns = invitations.map(&:campaign)
-    #   decorated = Decorators::Campaign.decorate_collection(campaigns)
-    #   items = decorated.map(&:to_creator_h)
-    #   halt 200, { count: campaigns.count, items: items }.to_json
-    # end
-
     api_route 'get', '/:id' do
       enhancer = campaign(strict: false).enhance
       halt 200, enhancer.with_invitations(session).to_json
