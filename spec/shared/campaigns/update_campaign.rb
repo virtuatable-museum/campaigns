@@ -8,7 +8,7 @@ RSpec.shared_examples 'PUT /:id' do
 
       describe 'nothing being updated' do
         before do
-          put "/campaigns/#{campaign.id.to_s}", {token: gateway.token, app_key: appli.key, session_id: session.token}
+          put "/#{campaign.id.to_s}", {app_key: appli.key, session_id: session.token}
         end
         it 'returns a OK (200) response code when updating nothing' do
           expect(last_response.status).to be 200
@@ -38,7 +38,7 @@ RSpec.shared_examples 'PUT /:id' do
       end
       describe 'update of the title' do
         before do
-          put "/campaigns/#{campaign.id.to_s}", {token: gateway.token, app_key: appli.key, title: 'another random title', session_id: session.token}
+          put "/#{campaign.id.to_s}", {app_key: appli.key, title: 'another random title', session_id: session.token}
         end
         it 'returns a OK (200) response code when updating the title' do
           expect(last_response.status).to be 200
@@ -52,7 +52,7 @@ RSpec.shared_examples 'PUT /:id' do
       end
       describe 'update of the description' do
         before do
-          put "/campaigns/#{campaign.id.to_s}", {token: gateway.token, app_key: appli.key, description: 'another long description', session_id: session.token}
+          put "/#{campaign.id.to_s}", {app_key: appli.key, description: 'another long description', session_id: session.token}
         end
         it 'returns a OK (200) response code when updating the description' do
           expect(last_response.status).to be 200
@@ -66,7 +66,7 @@ RSpec.shared_examples 'PUT /:id' do
       end
       describe 'update of the privacy' do
         before do
-          put "/campaigns/#{campaign.id.to_s}", {token: gateway.token, app_key: appli.key, is_private: false, session_id: session.token}
+          put "/#{campaign.id.to_s}", {app_key: appli.key, is_private: false, session_id: session.token}
         end
         it 'returns a OK (200) response code when updating the privacy' do
           expect(last_response.status).to be 200
@@ -80,7 +80,7 @@ RSpec.shared_examples 'PUT /:id' do
       end
       describe 'update of the max players' do
         before do
-          put "/campaigns/#{campaign.id.to_s}", {token: gateway.token, app_key: appli.key, max_players: 10, session_id: session.token}
+          put "/#{campaign.id.to_s}", {app_key: appli.key, max_players: 10, session_id: session.token}
         end
         it 'returns a OK (200) response code when updating the privacy' do
           expect(last_response.status).to be 200
@@ -95,7 +95,7 @@ RSpec.shared_examples 'PUT /:id' do
       describe 'update of the tags' do
         describe 'update with an empty tags list' do
           before do
-            put "/campaigns/#{campaign.id.to_s}", {token: gateway.token, app_key: appli.key, tags: [], session_id: session.token}
+            put "/#{campaign.id.to_s}", {app_key: appli.key, tags: [], session_id: session.token}
           end
           it 'returns a OK (200) response code when updating the tags' do
             expect(last_response.status).to be 200
@@ -112,7 +112,7 @@ RSpec.shared_examples 'PUT /:id' do
         end
         describe 'update with another tags list' do
           before do
-            put "/campaigns/#{campaign.id.to_s}", {token: gateway.token, app_key: appli.key, tags: ['random_tag'], session_id: session.token}
+            put "/#{campaign.id.to_s}", {app_key: appli.key, tags: ['random_tag'], session_id: session.token}
           end
           it 'returns a OK (200) response code when updating the tags' do
             expect(last_response.status).to be 200
@@ -136,7 +136,7 @@ RSpec.shared_examples 'PUT /:id' do
         describe 'Updating when an already existing tag' do
           let!(:tag) { create(:tag) }
           before do
-            put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, tags: ['test_tag'], session_id: session.token}
+            put "/#{campaign.id}", {app_key: appli.key, tags: ['test_tag'], session_id: session.token}
           end
           it 'Has correctly updated the campaign' do
             campaign.reload
@@ -151,7 +151,7 @@ RSpec.shared_examples 'PUT /:id' do
           let!(:tag) { create(:tag, content: 'test_deletion', count: 2) }
           let!(:tag_delete_campaign) { create(:campaign, title: 'Tag deletion', creator: account, tags: ['test_deletion']) }
           before do
-            put "/campaigns/#{tag_delete_campaign.id}", {token: gateway.token, app_key: appli.key, tags: [], session_id: session.token}
+            put "/#{tag_delete_campaign.id}", {app_key: appli.key, tags: [], session_id: session.token}
           end
           it 'Has correctly updated the campaign' do
             tag_delete_campaign.reload
@@ -170,7 +170,7 @@ RSpec.shared_examples 'PUT /:id' do
     describe '400 errors' do
       describe 'session ID not given' do
         before do
-          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, title: 'another title'}
+          put "/#{campaign.id}", {app_key: appli.key, title: 'another title'}
         end
         it 'returns an Unprocessable Entity (400) response code when updating with an already used title' do
           expect(last_response.status).to be 400
@@ -188,7 +188,7 @@ RSpec.shared_examples 'PUT /:id' do
         let!(:other_campaign) { create(:campaign, id: 'another_campaign_id', title: 'another title', creator: account) }
 
         before do
-          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, title: 'another title', session_id: session.token}
+          put "/#{campaign.id}", {app_key: appli.key, title: 'another title', session_id: session.token}
         end
         it 'returns an 400 status' do
           expect(last_response.status).to be 400
@@ -209,7 +209,7 @@ RSpec.shared_examples 'PUT /:id' do
         let!(:third_invitation) { create(:accepted_invitation, campaign: campaign, account: third_account) }
 
         before do
-          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, max_players: 1, session_id: session.token}
+          put "/#{campaign.id}", {app_key: appli.key, max_players: 1, session_id: session.token}
         end
         it 'returns a 400 (Bad Request) status code' do
           expect(last_response.status).to be 400
@@ -225,7 +225,7 @@ RSpec.shared_examples 'PUT /:id' do
 
       describe 'when the max_players is below 1' do
         before do
-          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, max_players: 0, session_id: session.token}
+          put "/#{campaign.id}", {app_key: appli.key, max_players: 0, session_id: session.token}
         end
         it 'returns a 400 (Bad Request) status code' do
           expect(last_response.status).to be 400
@@ -241,7 +241,7 @@ RSpec.shared_examples 'PUT /:id' do
 
       describe 'when the max_players is above 20' do
         before do
-          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, max_players: 21, session_id: session.token}
+          put "/#{campaign.id}", {app_key: appli.key, max_players: 21, session_id: session.token}
         end
         it 'returns a 400 (Bad Request) status code' do
           expect(last_response.status).to be 400
@@ -262,7 +262,7 @@ RSpec.shared_examples 'PUT /:id' do
         let!(:another_session) { create(:session, account: another_account) }
 
         before do
-          get "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, session_id: another_session.token}
+          put "/#{campaign.id}", {app_key: appli.key, session_id: another_session.token}
         end
         it 'Returns a 403 error' do
           expect(last_response.status).to be 403
@@ -280,7 +280,7 @@ RSpec.shared_examples 'PUT /:id' do
     describe '404 errors' do
       describe 'Campaign not found' do
         before do
-          put '/campaigns/fake_campaign_id', {token: gateway.token, app_key: appli.key, session_id: session.token}
+          put '/fake_campaign_id', {app_key: appli.key, session_id: session.token}
         end
         it 'correctly returns a Not Found (404) error when the campaign you want to update does not exist' do
           expect(last_response.status).to be 404
@@ -296,7 +296,7 @@ RSpec.shared_examples 'PUT /:id' do
 
       describe 'Session not found' do
         before do
-          put "/campaigns/#{campaign.id}", {token: gateway.token, app_key: appli.key, session_id: 'unknown_token'}
+          put "/#{campaign.id}", {app_key: appli.key, session_id: 'unknown_token'}
         end
         it 'correctly returns a Not Found (404) error when the campaign you want to update does not exist' do
           expect(last_response.status).to be 404
